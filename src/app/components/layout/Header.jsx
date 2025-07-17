@@ -3,11 +3,9 @@ import Image from "next/image";
 
 
 const routes = [
-  {name: "Home", path: "/"},
-  {name: "Login", path: "/login"},
-  {name: "About", path: "/about"}
+  {name: "Home", path: "#Home"},
+  {name: "About", path: "#About"}
 ]
-
 
 export default function Header() {
   return (
@@ -27,13 +25,13 @@ export default function Header() {
         </div>
         <div className="hidden lg:flex lg:gap-x-12">
           {routes.map((route) => (
-            <Link
+            <a
               key={route.name}
               href={route.path}
               className="text-white hover:text-yellow-400"
             >
               {route.name}
-            </Link>
+            </a>
           ))}
         </div>
       </nav>
