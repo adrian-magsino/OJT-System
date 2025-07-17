@@ -4,7 +4,6 @@ import Image from "next/image";
 
 const routes = [
   {name: "Home", path: "/"},
-  {name: "Login", path: "/login"},
   {name: "About", path: "/about"}
 ]
 
