@@ -1,6 +1,4 @@
-import GoogleAuthButton from "@/app/components/auth/GoogleAuthButton";
-
-
+import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
 
 export default function Home() {
   return (

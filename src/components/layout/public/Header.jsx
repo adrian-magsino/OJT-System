@@ -12,7 +12,8 @@ export default function Header() {
     <header className="w-full fixed bg-green-700 z-40">
       <nav className="mx-auto flex items-center justify-between px-8">
         <div>
-          CVSU LOGO
+          <a href="/">CVSU LOGO</a>
+          
         </div>
         <div className="flex lg:hidden">
           <button

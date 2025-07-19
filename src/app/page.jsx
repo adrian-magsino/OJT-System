@@ -1,13 +1,19 @@
-
+//ROOT LANDING PAGE
 
 import Home from "./(public)/home/page";
 import About from "./(public)/about/page";
+import Header from "@/components/layout/public/Header";
+import Footer from "@/components/layout/public/Footer";
 
 export default function Main() {
   return (
     <>
-      <Home />
-      <About />
+      <Header />
+      <main>
+        <Home />
+        <About />
+      </main>
+      <Footer />
     </>
     
   );

@@ -1,5 +1,4 @@
 
-
 export default function About() {
   return (
     <div id="About" className="flex flex-col items-center justify-center min-h-screen">
