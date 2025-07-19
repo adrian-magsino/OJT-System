@@ -1,6 +1,10 @@
-import Image from "next/image";
+'use client'
 
-const handleLogin = () => {}
+import { Login } from "@/lib/auth_actions";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+
+
 
 export default function GoogleAuthButton() {
   return (
@@ -11,6 +15,7 @@ export default function GoogleAuthButton() {
         
         <button
           type="button"
+          onClick={Login}
           className="mt-10 flex w-full justify-center rounded-md bg-white px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           <Image alt="Google" src="/icons/google_icon.svg" width={30} height={30}/>
