@@ -6,8 +6,7 @@ export default function StudentLayout({ children }){
   return (
     <>
       <StudentHeader />
-      <div>
-      {/*STUDENT SIDEBAR OR SOMETHING*/ }  
+      <div className="pt-12">
         <main>
           {children}
         </main>
