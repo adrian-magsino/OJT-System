@@ -9,10 +9,12 @@ export default function Main() {
   return (
     <>
       <Header />
-      <main>
-        <Home />
-        <About />
-      </main>
+      <div className="pt-12">
+        <main>
+          <Home />
+          <About />
+        </main>
+      </div>
       <Footer />
     </>
     
