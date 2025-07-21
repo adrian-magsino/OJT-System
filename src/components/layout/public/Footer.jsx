@@ -3,7 +3,7 @@ export default function Footer() {
   return (
     <footer className="bg-green-500">
       <div className="mx-auto w-full max-w-screen-xl">
-        <div className="grid grid-cols:2 md:grid-cols-4 gap-8 px-4 py-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 px-4 py-6">
           <div className="max-w-sm">
             <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase">OJT SYSTEM</h2>
             <p>

@@ -5,7 +5,7 @@
 import Link from "next/link";
 
 export default function StudentHeader() {
-  const user_name = "Adrian Magsino"
+  const user_name = "Eren Yeager"
 
   return (
     <header className="w-full h-12 fixed bg-green-700 z-40">
