@@ -1,7 +1,14 @@
+// SupabaseProvider.jsx
 'use client'
 
 import { createBrowserClient } from '@supabase/ssr'
-import { useState } from 'react'
+import { createContext, useContext, useState } from 'react'
+
+const SupabaseContext = createContext(null)
+
+export function useSupabase() {
+  return useContext(SupabaseContext)
+}
 
 export default function SupabaseProvider({ children }) {
   const [supabase] = useState(() =>
@@ -11,5 +18,9 @@ export default function SupabaseProvider({ children }) {
     )
   )
 
-  return <>{children}</>
+  return (
+    <SupabaseContext.Provider value={{ supabase }}>
+      {children}
+    </SupabaseContext.Provider>
+  )
 }

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-
+import LogoutButton from '../../auth/LogoutButton'
 
 const routes = [
   {name: "Home", path: "#Home"},
@@ -39,6 +39,10 @@ export default function Header() {
             </a>
           ))}
         </div>
+
+        {/* Logout button */}
+        <LogoutButton />
+
       </nav>
     </header>
   );
