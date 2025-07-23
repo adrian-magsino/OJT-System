@@ -41,7 +41,7 @@ export default function Header() {
         </div>
 
         {/* Logout button */}
-        <LogoutButton />
+
 
       </nav>
     </header>
