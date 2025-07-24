@@ -3,7 +3,7 @@
 "use client"
 
 import Link from "next/link";
-import LogoutButton from '@/components/auth/LogOutButton'
+import LogoutButton from '@/components/auth/LogoutButton'
 
 export default function StudentHeader() {
   const user_name = "Eren Yeager"
