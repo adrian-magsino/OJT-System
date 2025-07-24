@@ -10,6 +10,9 @@ export default function GoogleAuthButton() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
+        queryParams: {
+        hd: 'cvsu.edu.ph'
+      },
         redirectTo: `${window.location.origin}/auth/callback`
       }
     })
