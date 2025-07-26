@@ -5,8 +5,20 @@
 import Link from "next/link";
 import LogoutButton from '@/components/auth/LogoutButton'
 
-export default function StudentHeader({ user }) {
-  const user_name = user?.name || "Guest User"
+export default function StudentHeader({ user, error }) {
+
+  if (error || !user) {
+    return (
+      <header className="w-full h-12 fixed bg-red-600 z-40">
+        <nav className="mx-auto h-full flex items-center justify-center px-8">
+          <div className="text-white font-medium">ERROR: UNABLE TO LOAD USER DATA</div>
+          <LogoutButton />
+        </nav>
+      </header>
+    );
+  }
+
+  const user_name = user.name;
 
   return (
     <header className="w-full h-12 fixed bg-green-700 z-40">

@@ -8,5 +8,5 @@ export default async function StudentHeaderWrapper() {
     console.error("Error fetching user:", error);
   } 
 
-  return <StudentHeader user={user} />
+  return <StudentHeader user={user} error={error}/>
 }
