@@ -5,8 +5,8 @@
 import Link from "next/link";
 import LogoutButton from '@/components/auth/LogoutButton'
 
-export default function StudentHeader() {
-  const user_name = "Eren Yeager"
+export default function StudentHeader({ user }) {
+  const user_name = user?.name || "Guest User"
 
   return (
     <header className="w-full h-12 fixed bg-green-700 z-40">

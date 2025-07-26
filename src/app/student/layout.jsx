@@ -1,12 +1,13 @@
 import Footer from "@/components/layout/public/Footer";
 import StudentHeader from "@/components/layout/student/Header";
+import StudentHeaderWrapper from "@/components/layout/student/HeaderWrapper";
 import Sidebar from "@/components/ui/student/Sidebar";
 
 
 export default function StudentLayout({ children }){
   return (
     <>
-      <StudentHeader />
+      <StudentHeaderWrapper />
       
       <div className="pt-12 pb-10">
         <Sidebar />
