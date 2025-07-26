@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 
-
 const routes = [
   {name: "Home", path: "#Home"},
   {name: "About", path: "#About"}
@@ -12,7 +11,7 @@ export default function Header() {
     <header className="w-full h-12 fixed bg-green-700 z-40">
       <nav className="mx-auto h-full flex items-center justify-between px-8">
         <div>
-          <a href="/">CVSU LOGO</a>
+          <a href="/">WEBSITE LOGO</a>
           
         </div>
 
@@ -39,6 +38,10 @@ export default function Header() {
             </a>
           ))}
         </div>
+
+        {/* Logout button */}
+
+
       </nav>
     </header>
   );

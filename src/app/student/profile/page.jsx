@@ -1,6 +1,6 @@
 //STUDENT PROFILE PAGE
 
-import InfoField from "@/components/layout/InfoField";
+import InfoField from "@/components/ui/InfoField";
 
 
 export default function StudentProfile() {

@@ -3,6 +3,7 @@
 "use client"
 
 import Link from "next/link";
+import LogoutButton from '@/components/auth/LogoutButton'
 
 export default function StudentHeader() {
   const user_name = "Eren Yeager"
@@ -12,7 +13,7 @@ export default function StudentHeader() {
       <nav className="mx-auto h-full flex items-center justify-between px-8">
         {/* WEBSITE LOGO */}
         <div>
-          <Link href="/">CVSU LOGO</Link>
+          <Link href="/">WEBSITE LOGO</Link>
           
         </div>
 
@@ -25,7 +26,8 @@ export default function StudentHeader() {
             <span className="text-white font-medium">{user_name.toUpperCase().trim()}</span>
           </div>
         </Link>
-
+        {/* Logout button */}
+        <LogoutButton />
       </nav>
     </header>
   );

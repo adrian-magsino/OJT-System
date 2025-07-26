@@ -1,36 +1,42 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 export async function GET(request) {
-  const cookieStore = cookies()
-  const requestUrl = new URL(request.url)
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get("code");
+  const next = searchParams.get("next") ?? "/student";
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll: () => {
-          const allCookies = cookieStore.getAll()
-          return allCookies.map((cookie) => ({
-            name: cookie.name,
-            value: cookie.value,
-          }))
-        },
-        setAll: async (cookiesToSet) => {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set({ name, value, ...options })
-          })
-        },
-      },
-    }
-  )
+  const supabase = await createClient();
 
-  const code = requestUrl.searchParams.get('code')
-  if (code) {
-    await supabase.auth.exchangeCodeForSession(code)
+  // Check if user is already authenticated
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (user) {
+    // User is already logged in, redirect to dashboard
+    redirect(next);
   }
 
-  return NextResponse.redirect(requestUrl.origin + '/student')
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    
+    if (!error) {
+      // Redirect to student dashboard after successful login
+      redirect(next);
+    } else {
+      // Check if error is due to code already being used
+      if (error.message.includes('code') || error.message.includes('expired') || error.message.includes('invalid')) {
+        // Code already used or expired, check if user is now authenticated
+        const { data: { user: newUser } } = await supabase.auth.getUser();
+        if (newUser) {
+          redirect(next);
+        }
+      }
+      
+      // Redirect to error page with error message
+      redirect(`/auth/error?error=${encodeURIComponent(error.message)}`);
+    }
+  }
+
+  // If no code, redirect to error page
+  redirect(`/auth/error?error=${encodeURIComponent("No authorization code provided")}`);
 }
