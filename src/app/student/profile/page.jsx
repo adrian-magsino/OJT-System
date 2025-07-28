@@ -1,8 +1,9 @@
 //STUDENT PROFILE PAGE
 
 import InfoField from "@/components/ui/InfoField";
+import InterestsEditor from "@/components/ui/student/InterestsEditor";
 import SpecializationEditor from "@/components/ui/student/SpecializationEditor";
-import { updateSpecializationsAction } from "@/lib/actions/student-actions";
+import { updateInterestsField, updateSpecializationsField } from "@/lib/actions/student-actions";
 import { getCurrentStudentProfile } from "@/lib/services/student-service";
 
 
@@ -34,7 +35,7 @@ export default async function StudentProfile() {
 
   return (
     <div className="w-full min-h-screen">
-      <div className="flex gap-[20px] flex-row flex-wrap bg-green-200">
+      <div className="flex gap-[20px] flex-row flex-wrap bg-gray-50">
 
         {/*Main Info Container*/}
         <div className="w-full min-h-30 grow bg-white border-2 mx-10 mt-10 flex flex-row">
@@ -65,13 +66,24 @@ export default async function StudentProfile() {
             
           </div>
         </div>
-        {/*Skills and Interests*/}
+        {/*Skills and Specializations Section*/}
         <div className="w-full min-h-30 grow bg-white border-2 mx-10">
-          <h3>SKILLS AND SPECIALIZATIONS</h3>
+          <h3 className="ml-2 mt-2 font-bold">SKILLS AND SPECIALIZATIONS</h3>
 
           <SpecializationEditor
             initialSpecializations={student.specializations || []} 
-            onSave={updateSpecializationsAction}
+            onSave={updateSpecializationsField}
+          />
+
+        </div>
+
+        {/*Interests Section*/}
+        <div className="w-full min-h-30 grow bg-white border-2 mx-10">
+          <h3 className="ml-2 mt-2 font-bold">INTERESTS</h3>
+
+          <InterestsEditor 
+            initialInterests={student.interests || []}
+            onSave={updateInterestsField}
           />
 
         </div>

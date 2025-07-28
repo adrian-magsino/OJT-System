@@ -2,63 +2,62 @@
 
 import { useState } from "react";
 
-export default function SpecializationEditor({ initialSpecializations = [], onSave }) {
-  const [specializations, setSpecializations] = useState(initialSpecializations);
+export default function InterestsEditor( {initialInterests = [], onSave }) {
+  const [interests, setInterests] = useState (initialInterests);
   const [isEditing, setIsEditing] = useState(false);
-  const [newSpecialization, setNewSpecialization] = useState("");
+  const [newInterest, setNewInterest] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const addSpecialization = () => {
-    if (newSpecialization.trim() && !specializations.includes(newSpecialization.trim())) {
-      setSpecializations([...specializations, newSpecialization.trim()]);
-      setNewSpecialization("");
+  const addInterest = () => {
+    if (newInterest.trim() && !interests.includes(newInterest.trim())) {
+      setInterests([...interests, newInterest.trim()]);
     }
   };
 
-  const removeSpecialization = (indexToRemove) => {
-    setSpecializations(specializations.filter((_, index) => index !== indexToRemove));
+  const removeInterest = (indexToRemove) => {
+    setInterests(interests.filter((_, index) => index !== indexToRemove));
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await onSave(specializations);
+      await onSave(interests);
       setIsEditing(false);
     } catch (error) {
-      console.error("Error saving specializations:", error);
+      console.error("Error saving interests:", error);
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleCancel = () => {
-    setSpecializations(initialSpecializations);
-    setNewSpecialization("");
+    setInterests(initialInterests);
+    setNewInterest("");
     setIsEditing(false);
   };
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      addSpecialization();
+      addInterest();
     }
   };
 
   return (
     <div className="mt-4 mx-4">
       <div className="flex flex-wrap gap-2">
-        {/* Display specializations*/}
-        {specializations.map((spec, index) => (
+        {/* Display interests*/}
+        {interests.map((interest_, index) => (
           <div
             key={index}
             className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full border"
           >
-            <span>{spec}</span>
+            <span>{interest_}</span>
             {isEditing && (
               <button
-                onClick={() => removeSpecialization(index)} 
+                onClick={() => removeInterest(index)} 
                 className="ml-1 text-red-600 hover:text-red-800 font-bold text-xl"
-                title="Remove specialization"
+                title="Remove interest"
               >
                 -
               </button>
@@ -67,21 +66,21 @@ export default function SpecializationEditor({ initialSpecializations = [], onSa
           </div>
         ))}
 
-        {/*Add new specialization */}
+        {/*Add new interest */}
         {isEditing && (
           <div className="flex items-center gap-1 px-3 py-1 bg-gray-100 border border-dashed border-gray-400 rounded-full">
             <input 
               type="text"
-              value={newSpecialization}
-              onChange={(e) => setNewSpecialization(e.target.value)}
+              value={newInterest}
+              onChange={(e) => setNewInterest(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Add Specialization"
+              placeholder="Add Interest"
               className="bg-transparent outline-none text-sm min-w-[120px]"
             />
             <button
-              onClick={addSpecialization}
+              onClick={addInterest}
               className="text-green-600 hover:text-green-800 font-bold"
-              title="Add specialization"
+              title="Add interest"
             >
               +
             </button>
@@ -90,8 +89,8 @@ export default function SpecializationEditor({ initialSpecializations = [], onSa
           </div>
         )}
 
-        {specializations.length === 0 && !isEditing && (
-          <span className="text-gray-500 italic">No specializations added yet.</span>
+        {interests.length === 0 && !isEditing && (
+          <span className="text-gray-500 italic">No interest added yet.</span>
         )}
       </div>
 

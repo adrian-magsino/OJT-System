@@ -23,7 +23,8 @@ export async function getCurrentStudentProfile() {
       student_id,
       student_number,
       program,
-      specializations
+      specializations,
+      interests
     `)
     .eq("student_id", userData.user_id)
     .single()
