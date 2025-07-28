@@ -1,6 +1,8 @@
 //STUDENT PROFILE PAGE
 
 import InfoField from "@/components/ui/InfoField";
+import SpecializationEditor from "@/components/ui/student/SpecializationEditor";
+import { updateSpecializationsAction } from "@/lib/actions/student-actions";
 import { getCurrentStudentProfile } from "@/lib/services/student-service";
 
 
@@ -64,7 +66,15 @@ export default async function StudentProfile() {
           </div>
         </div>
         {/*Skills and Interests*/}
-        <div className="w-full min-h-30 grow bg-white border-2 mx-10">SKILLS AND INTERESTS</div>
+        <div className="w-full min-h-30 grow bg-white border-2 mx-10">
+          <h3>SKILLS AND SPECIALIZATIONS</h3>
+
+          <SpecializationEditor
+            initialSpecializations={student.specializations || []} 
+            onSave={updateSpecializationsAction}
+          />
+
+        </div>
         
         {/*Other Info Container*/}
         <div className="w-full min-h-30 grow bg-white border-2 mx-10">OTHER INFORMATION</div>

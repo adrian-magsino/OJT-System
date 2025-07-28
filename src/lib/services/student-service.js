@@ -22,7 +22,8 @@ export async function getCurrentStudentProfile() {
     .select(`
       student_id,
       student_number,
-      program
+      program,
+      specializations
     `)
     .eq("student_id", userData.user_id)
     .single()
@@ -38,5 +39,34 @@ export async function getCurrentStudentProfile() {
   };
 
   return { student, error: null};
+
+}
+
+export async function updateStudentProfile(updates) {
+  const { user: userData, error: userError } = await getCurrentUser();
+
+  if (userError || !userData) {
+    return { student: null, error: userError };
+  }
+
+  if (userData.role !== "student") {
+    return {
+      student: null,
+      error: { message: "User is not a student" }
+    }
+  }
+
+  const supabase = await createClient();
+
+  const { error: updateError } = await supabase
+    .from("student_profiles")
+    .update(updates)
+    .eq("student_id", userData.user_id)
+
+  if (updateError) {
+    return {error: updateError};
+  }
+
+  return {error: null};
 
 }
