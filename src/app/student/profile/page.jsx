@@ -9,19 +9,6 @@ import { getCurrentStudentProfile } from "@/lib/services/student-service";
 
 export default async function StudentProfile() {
   const { student, error } = await getCurrentStudentProfile();
-
-  /* SAMPLE DATA ONLY
-  const displayName = "Eren Yeager"
-  const student_data = {
-    name: displayName,
-    email: "main.eren.yeager@cvsu.edu.ph",
-    program: "Bachelor of Science in Computer Science",
-    age: "999",
-    birthdate: "January 1, 2025",
-    contactnum: "+123 456 789",
-    country: "Philippines"
-  }
-    */
   
   if (error || !student) {
     return (
