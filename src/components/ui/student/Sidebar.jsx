@@ -1,4 +1,4 @@
-
+import Link from "next/link";
 
 export default function Sidebar() {
   const linkClasses = "flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group";
@@ -8,19 +8,19 @@ export default function Sidebar() {
       <div className="h-full px-3 py-4 overflow-y-auto bg-gray-200">
         <ul className="space-y-2 font-medium">
           <li>
-            <a  href="#" className={linkClasses}>
+            <Link href="/student" className={linkClasses}>
               <span className="ms-3">DASHBOARD</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a  href="#" className={linkClasses}>
+            <Link href="/student/forms" className={linkClasses}>
               <span className="ms-3">PAGE 2</span>
-            </a>
+            </Link>
           </li>
           <li>
-            <a  href="#" className={linkClasses}>
+            <Link  href="#" className={linkClasses}>
               <span className="ms-3">PAGE 3</span>
-            </a>
+            </Link>
           </li>
         </ul>
       </div>
