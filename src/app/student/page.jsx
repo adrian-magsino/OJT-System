@@ -2,12 +2,26 @@
 
 import HteCard from "@/components/ui/hte/HteCard";
 import HteProfile from "@/components/ui/hte/HteProfile";
+import { getAllHTEs } from "@/lib/services/hte-service";
 import { Suspense } from "react";
 
 
 export default async function StudentDashboard({ searchParams }) {
   const params = await searchParams;
   const selectedHteId = params?.hte;
+
+  //Fetch all HTEs (temporary approach, improve later)
+  const { htes, error } = await getAllHTEs();
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-red-600">Error loading HTEs: {error.message}</p> 
+      </div>
+    )
+  }
+
+  const selectedHte = htes?.find(hte => hte.hte_id === selectedHteId);
 
   return (
     <div className="h-[calc(100vh-3rem)] flex">
@@ -24,10 +38,13 @@ export default async function StudentDashboard({ searchParams }) {
         {/*List of HTEs */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-4 space-y-3">
-            <HteCard hteId={"1"} isSelected={selectedHteId === "1"}/>
-            <HteCard hteId={"2"} isSelected={selectedHteId === "2"}/>
-            <HteCard hteId={"3"} isSelected={selectedHteId === "3"}/>
-            <HteCard hteId={"4"} isSelected={selectedHteId === "4"}/>
+            {htes?.map((hte) => (
+              <HteCard 
+                key={hte.hte_id}
+                hte_data={hte}
+                isSelected={selectedHteId === hte.hte_id}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -37,7 +54,7 @@ export default async function StudentDashboard({ searchParams }) {
         <div className="h-full overflow-y-auto">
             {selectedHteId ? (
               <Suspense fallback={<div className="p-6">Loading HTE profile...</div>}>
-                <HteProfile hteId={selectedHteId} />
+                <HteProfile hte_id={selectedHteId} />
               </Suspense>
             ) : (
               <div className="flex items-center justify-center h-full bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">

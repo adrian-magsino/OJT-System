@@ -2,25 +2,18 @@
 
 import Image from "next/image";
 import Link from "next/link"; 
-import { useSearchParams, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 
-export default function HteCard({ hteId, isSelected = false}) {
+export default function HteCard({ hte_data, isSelected = false}) {
   const pathname = usePathname();
 
-  const hte_data = {
-    id: hteId,
-    name: "Department of Information Technology",
-    location: "Indang, Cavite"
-  }
-
   // For large screens: update URL params
-  // For small screens: navigate to dedicated page 
   const href = {
     pathname: pathname,
-    query: { hte: hteId }
+    query: { hte: hte_data.hte_id }
   }
-
-  const mobileHref = `/student/hte/${hteId}`;
+  // For small screens: navigate to dedicated page 
+  const mobileHref = `/student/hte/${hte_data.hte_id}`;
 
   return (
     <>
@@ -34,6 +27,7 @@ export default function HteCard({ hteId, isSelected = false}) {
         <HteCardContent hte_data={hte_data} />
       </Link>
 
+      {/* Navigation using mobile devices */}
       <Link
         href={mobileHref}
         className="block lg:hidden flex flex-row border-2 w-full min-h-30 grow p-3 cursor-pointer transition-colors hover:bg-gray-50 border-gray-200"
@@ -60,10 +54,9 @@ function HteCardContent({ hte_data }) {
 
       {/*HTE details preview */}
       <div className="flex flex-col mx-10">
-        <span className="text-xl font-bold text-green-800">{hte_data.name}</span>
-        <span>{hte_data.location}</span>
-        <span>Other details</span>
-        <span>Other details</span>
+        <h1 className="text-xl font-bold text-green-800">{hte_data.name}</h1>
+        <p>{hte_data.location}</p>
+        <p>{hte_data.nature_of_work}</p>
       </div>
       
     </div>
