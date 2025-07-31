@@ -3,7 +3,8 @@
 import HteCard from "@/components/ui/hte/HteCard";
 import HteProfile from "@/components/ui/hte/HteProfile";
 import Pagination from "@/components/ui/Pagination";
-import { getAllHTEs, getHTEs } from "@/lib/services/hte-service";
+import SkeletonLoader from "@/components/ui/SkeletonLoader";
+import { getHTEs } from "@/lib/services/hte-service";
 import { Suspense } from "react";
 
 
@@ -11,7 +12,7 @@ export default async function StudentDashboard({ searchParams }) {
   const params = await searchParams;
   const selectedHteId = params?.hte;
   const currentPage = parseInt(params?.page) || 1;
-  const itemPerPage = 2
+  const itemPerPage = 2 //Number of HTEs displayed per page
 
   //fetch HTEs per page
   const { htes, error, totalCount, totalPages, hasNextPage, hasPreviousPage } = 
@@ -83,7 +84,7 @@ export default async function StudentDashboard({ searchParams }) {
       <div className={`w-1/2 flex-col bg-gray-50 ${selectedHteId ? 'flex' : 'hidden lg:flex'}`}>
         <div className="h-full overflow-y-auto">
             {selectedHteId ? (
-              <Suspense fallback={<div className="p-6">Loading HTE profile...</div>}>
+              <Suspense fallback={<div className="p-6"><SkeletonLoader /></div>}>
                 <HteProfile hte_id={selectedHteId} />
               </Suspense>
             ) : (
