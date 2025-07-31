@@ -1,24 +1,32 @@
 'use client'
 
+import { parseParameter } from "next/dist/shared/lib/router/utils/route-regex";
 import Image from "next/image";
 import Link from "next/link"; 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
-export default function HteCard({ hte_data, isSelected = false}) {
+export default function HteCard({ hte_data, isSelected}) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentPage = searchParams.get('page') || '1'
 
-  // For large screens: update URL params
-  const href = {
-    pathname: pathname,
-    query: { hte: hte_data.hte_id }
+  const createDesktopUrl = () => {
+    const params = new URLSearchParams();
+    params.set('page', currentPage);
+    params.set('hte', hte_data.hte_id);
+    return `${pathname}?${params.toString()}`;
+  };
+
+  const createMobileUrl = () => {
+    const params = new URLSearchParams();
+    params.set('from_page', currentPage);
+    return `/student/hte/${hte_data.hte_id}?${params.toString()}`;
   }
-  // For small screens: navigate to dedicated page 
-  const mobileHref = `/student/hte/${hte_data.hte_id}`;
 
   return (
     <>
       <Link
-        href={href}
+        href={createDesktopUrl()}
         className={`hidden lg:block flex flex-row border-2 w-full min-h-30 grow p-3 cursor-pointer transition-colors hover:bg-gray-50
           ${
             isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
@@ -29,7 +37,7 @@ export default function HteCard({ hte_data, isSelected = false}) {
 
       {/* Navigation using mobile devices */}
       <Link
-        href={mobileHref}
+        href={createMobileUrl()}
         className="block lg:hidden flex flex-row border-2 w-full min-h-30 grow p-3 cursor-pointer transition-colors hover:bg-gray-50 border-gray-200"
       >
           <HteCardContent hte_data={hte_data}/>
