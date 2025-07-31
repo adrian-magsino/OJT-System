@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { fetchActiveHTEs, deactivateHTE } from '@/lib/services/hte-service-client';
 
 export default function HTEListPage() {
   const [htes, setHTEs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const supabase = createClient();
   const router = useRouter();
 
   useEffect(() => {
@@ -19,15 +18,8 @@ export default function HTEListPage() {
     try {
       setLoading(true);
       setError(null);
-      
-      const { data, error } = await supabase
-        .from('hte_with_work_tasks')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      
+
+      const data = await fetchActiveHTEs();
       setHTEs(data || []);
     } catch (error) {
       console.error('Error fetching HTEs:', error);
@@ -39,19 +31,9 @@ export default function HTEListPage() {
 
   const handleDeactivate = async (hteId, hteName) => {
     if (!confirm(`Are you sure you want to deactivate "${hteName}"?`)) return;
-    
+
     try {
-      const { error } = await supabase
-        .from('hte')
-        .update({ 
-          is_active: false,
-          updated_at: new Date().toISOString()
-        })
-        .eq('hte_id', hteId);
-        
-      if (error) throw error;
-      
-      // Refresh the list
+      await deactivateHTE(hteId);
       await fetchHTEs();
       alert('HTE deactivated successfully');
     } catch (error) {
