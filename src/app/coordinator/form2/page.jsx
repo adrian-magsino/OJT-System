@@ -1,83 +1,39 @@
-'use client'
-import React, { useEffect, useState } from 'react';
-import { getForm2Submissions } from '@/lib/services/forms-service';
+// src/app/coordinator/form2/page.jsx
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import Forms2ClientComponent from './Form2ClientComponent'
 
-const CoordinatorDashboard = () => {
-  const [submissions, setSubmissions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+export default async function Forms2Page() {
+  const supabase = await createClient()
+  
+  // Get user session on server side
+  const { data: { user }, error } = await supabase.auth.getUser()
+  
+  if (!user) {
+    redirect('/login')
+  }
 
-  useEffect(() => {
-    const fetchSubmissions = async () => {
-      setLoading(true);
-      const { data, error } = await getForm2Submissions();
+  // Check if user is coordinator
+  const { data: userData, error: userError } = await supabase
+    .from('users')
+    .select('role')
+    .eq('user_id', user.id)
+    .single()
 
-      if (error) {
-        console.error('Error fetching submissions:', error.message);
-        setError(error);
-      } else {
-        setSubmissions(data);
-      }
+  if (!userData || !['admin', 'ojt_coordinator'].includes(userData.role)) {
+    redirect('/unauthorized')
+  }
 
-      setLoading(false);
-    };
-
-    fetchSubmissions();
-  }, []);
+  // Fetch initial data on server side (optional, for better performance)
+  const { data: initialSubmissions, error: submissionsError } = await supabase
+    .rpc('get_form2_submissions_with_details')
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold">Coordinator Dashboard</h2>
-
-      {loading && (
-        <div className="grid gap-4">
-          <div className="animate-pulse h-24 bg-gray-200 rounded-md" />
-          <div className="animate-pulse h-24 bg-gray-200 rounded-md" />
-          <div className="animate-pulse h-24 bg-gray-200 rounded-md" />
-        </div>
-      )}
-
-      {error && <p className="text-red-500">Error loading submissions.</p>}
-
-      {!loading && !error && submissions.length === 0 && (
-        <p className="text-gray-500">No submissions found.</p>
-      )}
-
-      {!loading && !error && submissions.length > 0 && (
-        <div className="grid gap-4">
-          {submissions.map((submission) => (
-            <div
-              key={submission.id}
-              className="rounded-xl border bg-white shadow p-5 space-y-2"
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-lg font-semibold">
-                    {submission.student_profiles.full_name}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {submission.student_profiles.email}
-                  </p>
-                </div>
-                <button
-                  className="text-sm border px-3 py-1 rounded-md hover:bg-gray-100 transition"
-                  onClick={() => console.log('View Details clicked')}
-                >
-                  View Details
-                </button>
-              </div>
-              <div className="text-sm">
-                <span className="font-medium">HTE:</span> {submission.hte.name} — {submission.hte.location}
-              </div>
-              <div className="text-sm">
-                <span className="font-medium">Status:</span> {submission.status}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+    <div>
+      <Forms2ClientComponent 
+        initialSubmissions={initialSubmissions || []} 
+        user={user}
+      />
     </div>
-  );
-};
-
-export default CoordinatorDashboard;
+  )
+}
