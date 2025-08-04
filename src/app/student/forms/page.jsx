@@ -1,34 +1,37 @@
 'use client';
+import { submitform2Action } from '@/lib/actions/form-actions';
 import { useState } from 'react';
 
 export default function Form2InfoSheet() {
   const [formData, setFormData] = useState({
     // Student Training Information
-    studentName: '',
-    studentNumber: '',
-    studentEmail: '',
-    studentContact: '',
-    guardianName: '',
-    guardianContact: '',
-    guardianEmail: '',
+    student_name: '',
+    student_number: '',
+    student_email: '',
+    student_contact: '',
+    parent_guardian_name: '',
+    parent_guardian_contact: '',
+    parent_guardian_email: '',
     
     // HTE/IP Information for Recommendation Letter
-    companyName: '',
-    companyAddress: '',
-    companyContact: '',
-    companyEmail: '',
-    representativeName: '',
-    representativeTitle: '',
-    representativePosition: '',
+    company_name: '',
+    company_address: '',
+    company_contact_number: '',
+    company_email: '',
+    representative_name: '',
+    representative_title: '',
+    representative_designation: '',
     
     // HTE/IP Information for Memorandum of Agreement
-    mainSignatoryName: '',
-    mainSignatoryTitle: '',
-    mainSignatoryPosition: '',
-    firstWitnessName: '',
-    firstWitnessTitle: '',
-    secondWitnessName: '',
-    secondWitnessTitle: ''
+    main_signatory_name: '',
+    main_signatory_title: '',
+    main_signatory_designation: '',
+    first_witness_name: '',
+    first_witness_title: '',
+    first_witness_designation: '',
+    second_witness_name: '',
+    second_witness_title: '',
+    second_witness_designation: ''
   });
 
   const handleInputChange = (e) => {
@@ -39,10 +42,17 @@ export default function Form2InfoSheet() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Form Data:', formData);
-    // Handle form submission here
+    const result = await submitform2Action(formData);
+
+    if (result.success) {
+      alert('Form submitted successfully!');
+      //Add logic for resetting forms or redirecting
+    } else {
+      alert(`Error: ${result.error.message}`);
+    }
   };
 
   const titleOptions = ['Mr.', 'Ms.', 'Dr.', 'Engr.', 'Arch.', 'Hon.'];
@@ -66,8 +76,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="text"
-                name="studentName"
-                value={formData.studentName}
+                name="student_name"
+                value={formData.student_name}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
@@ -80,8 +90,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="text"
-                name="studentNumber"
-                value={formData.studentNumber}
+                name="student_number"
+                value={formData.student_number}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
@@ -94,8 +104,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="email"
-                name="studentEmail"
-                value={formData.studentEmail}
+                name="student_email"
+                value={formData.student_email}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
@@ -108,8 +118,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="tel"
-                name="studentContact"
-                value={formData.studentContact}
+                name="student_contact"
+                value={formData.student_contact}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
@@ -122,8 +132,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="text"
-                name="guardianName"
-                value={formData.guardianName}
+                name="parent_guardian_name"
+                value={formData.parent_guardian_name}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
@@ -132,12 +142,12 @@ export default function Form2InfoSheet() {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Guardian Contact Number *
+                Parent / Guardian Contact Number *
               </label>
               <input
                 type="tel"
-                name="guardianContact"
-                value={formData.guardianContact}
+                name="parent_guardian_contact"
+                value={formData.parent_guardian_contact}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
@@ -150,8 +160,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="email"
-                name="guardianEmail"
-                value={formData.guardianEmail}
+                name="parent_guardian_email"
+                value={formData.parent_guardian_email}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
@@ -172,8 +182,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="text"
-                name="companyName"
-                value={formData.companyName}
+                name="company_name"
+                value={formData.company_name}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 required
@@ -186,8 +196,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="tel"
-                name="companyContact"
-                value={formData.companyContact}
+                name="company_contact_number"
+                value={formData.company_contact_number}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 required
@@ -199,8 +209,8 @@ export default function Form2InfoSheet() {
                 Address *
               </label>
               <textarea
-                name="companyAddress"
-                value={formData.companyAddress}
+                name="company_address"
+                value={formData.company_address}
                 onChange={handleInputChange}
                 rows="3"
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
@@ -214,8 +224,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="email"
-                name="companyEmail"
-                value={formData.companyEmail}
+                name="company_email"
+                value={formData.company_email}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 required
@@ -228,8 +238,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="text"
-                name="representativeName"
-                value={formData.representativeName}
+                name="representative_name"
+                value={formData.representative_name}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 required
@@ -241,8 +251,8 @@ export default function Form2InfoSheet() {
                 Representative Title *
               </label>
               <select
-                name="representativeTitle"
-                value={formData.representativeTitle}
+                name="representative_title"
+                value={formData.representative_title}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 required
@@ -260,8 +270,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="text"
-                name="representativePosition"
-                value={formData.representativePosition}
+                name="representative_designation"
+                value={formData.representative_designation}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 required
@@ -282,8 +292,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="text"
-                name="mainSignatoryName"
-                value={formData.mainSignatoryName}
+                name="main_signatory_name"
+                value={formData.main_signatory_name}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 required
@@ -295,8 +305,8 @@ export default function Form2InfoSheet() {
                 Main Signatory Title *
               </label>
               <select
-                name="mainSignatoryTitle"
-                value={formData.mainSignatoryTitle}
+                name="main_signatory_title"
+                value={formData.main_signatory_title}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 required
@@ -314,8 +324,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="text"
-                name="mainSignatoryPosition"
-                value={formData.mainSignatoryPosition}
+                name="main_signatory_designation"
+                value={formData.main_signatory_designation}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 required
@@ -328,8 +338,8 @@ export default function Form2InfoSheet() {
               </label>
               <input
                 type="text"
-                name="firstWitnessName"
-                value={formData.firstWitnessName}
+                name="first_witness_name"
+                value={formData.first_witness_name}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 required
@@ -341,8 +351,8 @@ export default function Form2InfoSheet() {
                 First Witness Title *
               </label>
               <select
-                name="firstWitnessTitle"
-                value={formData.firstWitnessTitle}
+                name="first_witness_title"
+                value={formData.first_witness_title}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 required
@@ -353,15 +363,29 @@ export default function Form2InfoSheet() {
                 ))}
               </select>
             </div>
-            
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                First Witness Designation / Position *
+              </label>
+              <input
+                type="text"
+                name="first_witness_designation"
+                value={formData.first_witness_designation}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                required
+              />
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Name of Second Witness *
               </label>
               <input
                 type="text"
-                name="secondWitnessName"
-                value={formData.secondWitnessName}
+                name="second_witness_name"
+                value={formData.second_witness_name}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 required
@@ -373,8 +397,8 @@ export default function Form2InfoSheet() {
                 Second Witness Title *
               </label>
               <select
-                name="secondWitnessTitle"
-                value={formData.secondWitnessTitle}
+                name="second_witness_title"
+                value={formData.second_witness_title}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 required
@@ -385,6 +409,20 @@ export default function Form2InfoSheet() {
                 ))}
               </select>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Second Witness Designation / Position *
+              </label>
+              <input
+                type="text"
+                name="second_witness_designation"
+                value={formData.second_witness_designation}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                required
+              />
+            </div>           
           </div>
         </section>
 
