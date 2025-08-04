@@ -49,12 +49,12 @@ export const validateForm2Data = (formData) => {
   if (!formData.main_signatory_name?.trim()) errors.push('Main signatory name is required');
   if (!formData.main_signatory_title?.trim()) errors.push('Main signatory title is required');
   if (!formData.main_signatory_designation?.trim()) errors.push('Main signatory designation is required');
-  if (!formData.first_witness_name?.trim()) errors.push('First witness name is required');
-  if (!formData.first_witness_title?.trim()) errors.push('First witness title is required');
-  if (!formData.first_witness_designation?.trim()) errors.push('First witness designation is required');
-  if (!formData.second_witness_name?.trim()) errors.push('Second witness name is required');
-  if (!formData.second_witness_title?.trim()) errors.push('Second witness title is required');
-  if (!formData.second_witness_designation?.trim()) errors.push('Second witness designation is required');
+  // if (!formData.first_witness_name?.trim()) errors.push('First witness name is required');
+  // if (!formData.first_witness_title?.trim()) errors.push('First witness title is required');
+  // if (!formData.first_witness_designation?.trim()) errors.push('First witness designation is required');
+  // if (!formData.second_witness_name?.trim()) errors.push('Second witness name is required');
+  // if (!formData.second_witness_title?.trim()) errors.push('Second witness title is required');
+  // if (!formData.second_witness_designation?.trim()) errors.push('Second witness designation is required');
 
   // Email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
