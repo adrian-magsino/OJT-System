@@ -1,9 +1,12 @@
 'use client';
 import { submitform2Action } from '@/lib/actions/form-actions';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function Form2InfoSheet() {
-  const [formData, setFormData] = useState({
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const emptyFormData = {
     // Student Training Information
     student_name: '',
     student_number: '',
@@ -32,7 +35,9 @@ export default function Form2InfoSheet() {
     second_witness_name: '',
     second_witness_title: '',
     second_witness_designation: ''
-  });
+  };
+
+  const [formData, setFormData] = useState(emptyFormData);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,14 +49,28 @@ export default function Form2InfoSheet() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form Data:', formData);
-    const result = await submitform2Action(formData);
 
-    if (result.success) {
-      alert('Form submitted successfully!');
-      //Add logic for resetting forms or redirecting
-    } else {
-      alert(`Error: ${result.error.message}`);
+    //To prevent double submission 
+    if (isSubmitting) return;
+
+
+    setIsSubmitting(true);
+    console.log('Form Data:', formData);
+    try {
+      const result = await submitform2Action(formData);
+
+      if (result.success) {
+        alert('Form submitted successfully!');
+        setFormData(emptyFormData);
+        router.push('/student');
+      } else {
+        alert(`Error: ${result.error.message}`);
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      alert('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -334,7 +353,7 @@ export default function Form2InfoSheet() {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name of First Witness *
+                Name of First Witness
               </label>
               <input
                 type="text"
@@ -342,20 +361,18 @@ export default function Form2InfoSheet() {
                 value={formData.first_witness_name}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                required
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                First Witness Title *
+                First Witness Title
               </label>
               <select
                 name="first_witness_title"
                 value={formData.first_witness_title}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                required
               >
                 <option value="">Select Title</option>
                 {titleOptions.map(title => (
@@ -366,7 +383,7 @@ export default function Form2InfoSheet() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                First Witness Designation / Position *
+                First Witness Designation / Position
               </label>
               <input
                 type="text"
@@ -374,13 +391,12 @@ export default function Form2InfoSheet() {
                 value={formData.first_witness_designation}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                required
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name of Second Witness *
+                Name of Second Witness 
               </label>
               <input
                 type="text"
@@ -388,20 +404,18 @@ export default function Form2InfoSheet() {
                 value={formData.second_witness_name}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                required
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Second Witness Title *
+                Second Witness Title
               </label>
               <select
                 name="second_witness_title"
                 value={formData.second_witness_title}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                required
               >
                 <option value="">Select Title</option>
                 {titleOptions.map(title => (
@@ -412,7 +426,7 @@ export default function Form2InfoSheet() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Second Witness Designation / Position *
+                Second Witness Designation / Position
               </label>
               <input
                 type="text"
@@ -420,7 +434,6 @@ export default function Form2InfoSheet() {
                 value={formData.second_witness_designation}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                required
               />
             </div>           
           </div>
@@ -430,9 +443,14 @@ export default function Form2InfoSheet() {
         <div className="text-center">
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200 shadow-lg"
-          >
-            Submit Application
+            disabled={isSubmitting}
+            className={`font-bold py-3 px-8 rounded-lg transition duration-200 shadow-lg ${
+            isSubmitting 
+              ? 'bg-gray-400 cursor-not-allowed text-gray-700' 
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          }`}
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit Application'}
           </button>
         </div>
       </form>
