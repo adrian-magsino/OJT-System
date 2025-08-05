@@ -106,6 +106,7 @@ export async function getCurrentUserForm2Submission() {
         submission_status,
         submitted_at,
         updated_at,
+        reviewed_at,
         student_training_info (*),
         hte_recommendation_info (*),
         hte_moa_info (*)

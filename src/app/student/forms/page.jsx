@@ -31,7 +31,7 @@ export default async function Form2Page(){
             Student Application Form 2
           </h1>
           
-          <SubmissionStatus 
+          <SubmissionDetails 
             submission={submission} 
             hasSubmission={hasSubmission} 
           />
@@ -41,9 +41,62 @@ export default async function Form2Page(){
   );
 }
 
+const SubmissionStatus = ({ status }) => {
+  const getStatusConfig = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'approved':
+        return {
+          bgColor: 'bg-green-100',
+          textColor: 'text-green-800',
+          borderColor: 'border-green-200',
+          icon: (
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+          ),
+          label: 'APPROVED'
+        };
+      case 'rejected':
+        return {
+          bgColor: 'bg-red-100',
+          textColor: 'text-red-800',
+          borderColor: 'border-red-200',
+          icon: (
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+          ),
+          label: 'REJECTED'
+        };
+      case 'pending':
+      default:
+        return {
+          bgColor: 'bg-yellow-100',
+          textColor: 'text-yellow-800',
+          borderColor: 'border-yellow-200',
+          icon: (
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+            </svg>
+          ),
+          label: 'PENDING'
+        };
+    }
+  };
 
+  const config = getStatusConfig(status);
 
-function SubmissionStatus({ submission, hasSubmission }) {
+  return (
+    <span 
+      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${config.bgColor} ${config.textColor} ${config.borderColor}`}
+    >
+      {config.icon}
+      {config.label}
+    </span>
+  );
+};
+
+function SubmissionDetails({ submission, hasSubmission }) {
   if (hasSubmission) {
     return (
       <div className="text-center space-y-6">
@@ -60,8 +113,20 @@ function SubmissionStatus({ submission, hasSubmission }) {
             You have successfully submitted your application form.
           </p>
           <div className="space-y-2 text-sm text-green-600">
-            <p><strong>Status:</strong> {submission?.submission_status?.toUpperCase()}</p>
+            <div className="flex items-center justify-center">
+              <strong>Status:</strong>
+              <SubmissionStatus status={submission?.submission_status} />
+            </div>
+            
             <p><strong>Submitted:</strong> {new Date(submission?.submitted_at).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            })}</p>
+            <p><strong>Updated:</strong> {new Date(submission?.updated_at).toLocaleString('en-US', {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
