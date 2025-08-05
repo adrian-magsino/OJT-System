@@ -120,6 +120,8 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
               <th className="px-4 py-2 border">Student Number</th>
               <th className="px-4 py-2 border">Company</th>
               <th className="px-4 py-2 border">Status</th>
+              <th className="px-4 py-2 border">MOA Generated</th>
+              <th className="px-4 py-2 border">Rec Letter Generated</th>
               <th className="px-4 py-2 border">Submitted At</th>
               <th className="px-4 py-2 border">Actions</th>
             </tr>
@@ -127,7 +129,7 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
           <tbody>
             {filteredSubmissions.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-4">No submissions found.</td>
+                <td colSpan={8} className="text-center py-4">No submissions found.</td>
               </tr>
             ) : (
               filteredSubmissions.map((submission) => (
@@ -136,6 +138,12 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
                   <td className="px-4 py-2 border">{submission.student_number}</td>
                   <td className="px-4 py-2 border">{submission.company_name}</td>
                   <td className="px-4 py-2 border">{submission.submission_status}</td>
+                  <td className="px-4 py-2 border">
+                    {submission.has_moa ? 'Yes' : 'No'}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    {submission.has_recommendation_letter ? 'Yes' : 'No'}
+                  </td>
                   <td className="px-4 py-2 border">
                     {new Date(submission.submitted_at).toLocaleString()}
                   </td>
