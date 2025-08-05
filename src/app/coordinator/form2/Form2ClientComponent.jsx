@@ -68,11 +68,11 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
 
   const filteredSubmissions = submissions.filter(submission => {
     const matchesFilter = filter === 'all' || submission.submission_status === filter
-    const matchesSearch = 
+    const matchesSearch =
       submission.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       submission.student_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       submission.company_name.toLowerCase().includes(searchTerm.toLowerCase())
-    
+
     return matchesFilter && matchesSearch
   })
 
@@ -83,8 +83,8 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
 
         {/* Filters and Search */}
         <div className="flex gap-4 mb-4">
-          <select 
-            value={filter} 
+          <select
+            value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="px-3 py-2 border rounded-md"
           >
@@ -93,7 +93,7 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
-          
+
           <input
             type="text"
             placeholder="Search by student name, number, or company..."
@@ -123,13 +123,14 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
               <th className="px-4 py-2 border">MOA Generated</th>
               <th className="px-4 py-2 border">Rec Letter Generated</th>
               <th className="px-4 py-2 border">Submitted At</th>
+              <th className="px-4 py-2 border">Updated At</th>
               <th className="px-4 py-2 border">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredSubmissions.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-4">No submissions found.</td>
+                <td colSpan={9} className="text-center py-4">No submissions found.</td>
               </tr>
             ) : (
               filteredSubmissions.map((submission) => (
@@ -146,6 +147,9 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
                   </td>
                   <td className="px-4 py-2 border">
                     {new Date(submission.submitted_at).toLocaleString()}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    {submission.updated_at ? new Date(submission.updated_at).toLocaleString() : '—'}
                   </td>
                   <td className="px-4 py-2 border space-x-2">
                     {submission.submission_status === 'pending' && (
