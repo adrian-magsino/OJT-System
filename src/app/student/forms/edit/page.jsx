@@ -1,19 +1,76 @@
 'use client';
-import { submitform2Action } from '@/lib/actions/form-actions';
+import { submitform2Action, updateform2Action, getFormSubmissionAction } from '@/lib/actions/form-actions';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+// Transformation function - moved to separate function for better organization
+const transformSubmissionData = (submissionData) => {
+  const fieldMappings = {
+    // Student Training Information
+    student_training_info: [
+      'student_name',
+      'student_number', 
+      'student_email',
+      'student_contact_number',
+      'parent_guardian_name',
+      'parent_guardian_contact_number',
+      'parent_guardian_email'
+    ],
+    // HTE Recommendation Information
+    hte_recommendation_info: [
+      'company_name',
+      'company_address',
+      'company_contact_number',
+      'company_email',
+      'representative_name',
+      'representative_title',
+      'representative_designation'
+    ],
+    // HTE MOA Information
+    hte_moa_info: [
+      'main_signatory_name',
+      'main_signatory_title',
+      'main_signatory_designation',
+      'first_witness_name',
+      'first_witness_title',
+      'first_witness_designation',
+      'second_witness_name',
+      'second_witness_title',
+      'second_witness_designation'
+    ]
+  };
+
+  const formData = {};
+  
+  Object.entries(fieldMappings).forEach(([tableKey, fields]) => {
+    const tableData = submissionData[tableKey];
+    fields.forEach(field => {
+      formData[field] = tableData?.[field] || '';
+    });
+  });
+
+  return formData;
+};
 
 export default function EditForm2() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasExistingSubmission, setHasExistingSubmission] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState(null);
+  const [originalData, setOriginalData] = useState(null)
+
+  const titleOptions = ['Mr.', 'Ms.', 'Dr.', 'Engr.', 'Arch.', 'Hon.'];
+
+
   const emptyFormData = {
     // Student Training Information
     student_name: '',
     student_number: '',
     student_email: '',
-    student_contact: '',
+    student_contact_number: '',
     parent_guardian_name: '',
-    parent_guardian_contact: '',
+    parent_guardian_contact_number: '',
     parent_guardian_email: '',
     
     // HTE/IP Information for Recommendation Letter
@@ -39,6 +96,42 @@ export default function EditForm2() {
 
   const [formData, setFormData] = useState(emptyFormData);
 
+  useEffect(() => {
+    loadFormData();
+  }, []);
+
+  const loadFormData = async () => {
+    try {
+      setIsLoading(true);
+      const result = await getFormSubmissionAction();
+      
+      if (result.error) {
+        console.error('Error loading form data:', result.error);
+        // If there's an error but no existing data, allow new submission
+        setHasExistingSubmission(false);
+        setFormData(emptyFormData);
+      } else if (result.hasSubmission && result.data) {
+
+        const transformedData = transformSubmissionData(result.data)
+        //If there is an existing submission
+        setHasExistingSubmission(true);
+        setFormData(transformedData);
+        setOriginalData(transformedData);
+        setSubmissionStatus(result.submission_status);
+      } else {
+        // No existing submission, allow new submission
+        setHasExistingSubmission(false);
+        setFormData(emptyFormData);
+      }
+    } catch (error) {
+      console.error('Error loading form data:', error);
+      setHasExistingSubmission(false);
+      setFormData(emptyFormData);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -58,12 +151,17 @@ export default function EditForm2() {
     setIsSubmitting(true);
     console.log('Form Data:', formData);
     try {
-      const result = await submitform2Action(formData);
+      let result;
+      if (hasExistingSubmission) {
+        result = await updateform2Action(formData);
+      } else {
+        result = await submitform2Action(formData);
+      }
 
       if (result.success) {
-        alert('Form submitted successfully!');
-        setFormData(emptyFormData);
-        router.push('/student');
+        const action = hasExistingSubmission ? 'updated' : 'submitted';
+        alert(`Form ${action} successfully!`);
+        router.push('/student/forms');
       } else {
         alert(`Error: ${result.error.message}`);
       }
@@ -75,13 +173,45 @@ export default function EditForm2() {
     }
   };
 
-  const titleOptions = ['Mr.', 'Ms.', 'Dr.', 'Engr.', 'Arch.', 'Hon.'];
+  const handleCancel = () => {
+    if (hasExistingSubmission && originalData) {
+      // Reset to original data
+      setFormData(originalData);
+    } else {
+      //Reset to empty data
+      setFormData(emptyFormData);
+    }
+    router.push('/student/forms')
+  }
+
+  if (isLoading) {
+    return (
+      <div className='max-w-4xl mx-auto p-6'>
+        <div className="flex justify-center items-center h-64">
+          <div className='text-lg'>Loading form data...</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-        Student Application Forms
-      </h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">
+          {hasExistingSubmission ? 'Edit Application Form' : 'Student Application Form'}
+        </h1>
+        {hasExistingSubmission && (
+          <div className="text-center">
+            <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+              submissionStatus === 'approved' ? 'bg-green-100 text-green-800' :
+              submissionStatus === 'rejected' ? 'bg-red-100 text-red-800' :
+              'bg-yellow-100 text-yellow-800'
+            }`}>
+              Status: {submissionStatus?.toUpperCase()}
+            </span>
+          </div>
+        )}
+      </div>
       
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Student Training Information */}
@@ -138,8 +268,8 @@ export default function EditForm2() {
               </label>
               <input
                 type="tel"
-                name="student_contact"
-                value={formData.student_contact}
+                name="student_contact_number"
+                value={formData.student_contact_number}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
@@ -166,8 +296,8 @@ export default function EditForm2() {
               </label>
               <input
                 type="tel"
-                name="parent_guardian_contact"
-                value={formData.parent_guardian_contact}
+                name="parent_guardian_contact_number"
+                value={formData.parent_guardian_contact_number}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
@@ -440,18 +570,31 @@ export default function EditForm2() {
           </div>
         </section>
 
-        {/* Submit Button */}
+        {/* Action Buttons */}
+        <div>
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="px-6 py-3 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition-colors "
+          >
+            Cancel
+          </button>
+        </div>
+
         <div className="text-center">
           <button
             type="submit"
             disabled={isSubmitting}
             className={`font-bold py-3 px-8 rounded-lg transition duration-200 shadow-lg ${
-            isSubmitting 
-              ? 'bg-gray-400 cursor-not-allowed text-gray-700' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}
-        >
-          {isSubmitting ? 'Submitting...' : 'Submit Application'}
+              isSubmitting 
+                ? 'bg-gray-400 cursor-not-allowed text-gray-700' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+          >
+            {isSubmitting 
+              ? (hasExistingSubmission ? 'Updating...' : 'Submitting...') 
+              : (hasExistingSubmission ? 'Update Application' : 'Submit Application')
+            }
           </button>
         </div>
       </form>
