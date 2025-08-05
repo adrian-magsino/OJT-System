@@ -1,28 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './user-service';
 
-export const getForm2Submissions = async () => {
-  const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from('student_form2_submissions')
-    .select(`
-      submission_id,
-      submission_status,
-      submitted_at,
-      student_training_info (
-        student_name,
-        student_email
-      ),
-      hte_recommendation_info (
-        company_name,
-        address
-      )
-    `)
-    .order('submitted_at', { ascending: false });
-
-  return { data, error };
-};
 
 export const validateForm2Data = (formData) => {
   const errors = [];
@@ -107,5 +86,56 @@ export async function submitForm2(formData) {
     };
   }
 }
+
+
+export async function getCurrentUserForm2Submission() {
+  const supabase = await createClient();
+
+  // Get current user
+  const { user, error: userError } = await getCurrentUser();
+  if (userError || !user) {
+    return { data: null, error: userError || { message: 'User not authenticated' } };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('student_form2_submissions')
+      .select(`
+        submission_id,
+        submission_status,
+        submitted_at,
+        updated_at,
+        student_training_info (*),
+        hte_recommendation_info (*),
+        hte_moa_info (*)
+      `)
+      .eq('student_id', user.user_id)
+      .single();
+
+    if (error) {
+      // If no record found, return null data instead of error
+      if (error.code === 'PGRST116') {
+        return { data: null, error: null, hasSubmission: false };
+      }
+      throw error;
+    }
+
+    return { 
+      data, 
+      error: null, 
+      hasSubmission: true 
+    };
+  } catch (error) {
+    
+    console.error('Error fetching user form submission:', error);
+    return { 
+      data: null, 
+      error: { message: error.message || 'Failed to fetch form submission' },
+      hasSubmission: false 
+    };
+  }
+  
+}
+
 
 
