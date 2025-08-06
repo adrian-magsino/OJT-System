@@ -135,17 +135,46 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
                   <span className="font-medium">Company:</span> {submission.company_name}
                 </p>
                 <p className="text-sm">
-                  <span className="font-medium">Status:</span> {submission.submission_status}
+                  <span className="font-medium">Status:</span>{' '}
+                  <span
+                    className={`inline-block px-2 py-0.3 rounded-full text-xs font-medium ${
+                      submission.submission_status === 'pending'
+                        ? 'bg-yellow-200 text-yellow-800'
+                        : submission.submission_status === 'approved'
+                        ? 'bg-green-200 text-green-800'
+                        : 'bg-red-200 text-red-800'
+                    }`}
+                  >
+                    {submission.submission_status}
+                  </span>
                 </p>
               </div>
 
               {/* Document Status */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm">
-                  <span className="font-medium">MOA:</span> {submission.moa_is_completed ? 'Yes' : 'No'}
+                  <span className="font-medium">MOA:</span>{' '}
+                  <span
+                    className={`inline-block px-2 py-0.2 rounded-full text-xs font-medium ${
+                      submission.moa_is_completed
+                        ? 'bg-green-200 text-green-800'
+                        : 'bg-gray-200 text-gray-800'
+                    }`}
+                  >
+                    {submission.moa_is_completed ? 'Generated' : 'Not Generated Yet'}
+                  </span>
                 </p>
                 <p className="text-sm">
-                  <span className="font-medium">Rec Letter:</span> {submission.rl_is_completed ? 'Yes' : 'No'}
+                  <span className="font-medium">Rec Letter:</span>{' '}
+                  <span
+                    className={`inline-block px-2 py-0.2 rounded-full text-xs font-medium ${
+                      submission.rl_is_completed
+                        ? 'bg-green-200 text-green-800'
+                        : 'bg-gray-200 text-gray-800'
+                    }`}
+                  >
+                    {submission.rl_is_completed ? 'Generated' : 'Not Generated Yet'}
+                  </span>
                 </p>
               </div>
 
