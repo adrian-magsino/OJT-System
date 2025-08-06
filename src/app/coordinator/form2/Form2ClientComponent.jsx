@@ -79,7 +79,7 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-4">Form 2 Submissions</h1>
+        <h1 className="text-3xl font-semibold mb-4">Form 2 Submissions</h1>
 
         {/* Filters and Search */}
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
@@ -104,6 +104,25 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
         </div>
       </div>
 
+      {/* Header Card */}
+      <div className="bg-gray-100 border border-gray-200 rounded-lg p-4 flex flex-row items-center justify-between gap-2 mb-2">
+        <div className="flex-1 min-w-0 text-center">
+          <p className="text-sm font-bold">Student</p>
+        </div>
+        <div className="flex-1 min-w-0 text-center">
+          <p className="text-sm font-bold">Company</p>
+        </div>
+        <div className="flex-1 min-w-0 text-center">
+          <p className="text-sm font-bold">Status</p>
+        </div>
+        <div className="flex-1 min-w-0 text-center">
+          <p className="text-sm font-bold">Dates</p>
+        </div>
+        <div className="flex-1 min-w-[160px] text-center">
+          <p className="text-sm font-bold">Act</p>
+        </div>
+      </div>
+
       {/* Loading State */}
       {loading && (
         <div className="flex justify-center p-8">
@@ -121,21 +140,25 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
           filteredSubmissions.map((submission) => (
             <div
               key={submission.submission_id}
-              className="bg-white border border-gray-200 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex flex-row items-center justify-between gap-4"
+              className="bg-white border border-gray-200 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex flex-row items-center justify-between gap-2"
             >
               {/* Student Info */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 text-center">
                 <h3 className="text-lg font-semibold truncate">{submission.student_name}</h3>
                 <p className="text-sm text-gray-600">Student Number: {submission.student_number}</p>
               </div>
 
-              {/* Company and Status */}
-              <div className="flex-1 min-w-0">
+              {/* Company */}
+              <div className="flex-1 min-w-0 text-center">
                 <p className="text-sm truncate">
-                  <span className="font-medium">Company:</span> {submission.company_name}
+                  {submission.company_name}
                 </p>
-                <p className="text-sm">
-                  <span className="font-medium">Status:</span>{' '}
+              </div>
+
+              {/* Statuses */}
+              <div className="flex-1 min-w-0 text-center grid grid-cols-2 grid-rows-3 gap-1">
+                <p className="text-sm text-right"><span className="font-medium">Status:</span></p>
+                <p className="text-sm text-left">
                   <span
                     className={`inline-block px-2 py-0.3 rounded-full text-xs font-medium ${
                       submission.submission_status === 'pending'
@@ -148,12 +171,8 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
                     {submission.submission_status}
                   </span>
                 </p>
-              </div>
-
-              {/* Document Status */}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm">
-                  <span className="font-medium">MOA:</span>{' '}
+                <p className="text-sm text-right"><span className="font-medium">MOA:</span></p>
+                <p className="text-sm text-left">
                   <span
                     className={`inline-block px-2 py-0.2 rounded-full text-xs font-medium ${
                       submission.moa_is_completed
@@ -164,8 +183,8 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
                     {submission.moa_is_completed ? 'Generated' : 'Not Generated Yet'}
                   </span>
                 </p>
-                <p className="text-sm">
-                  <span className="font-medium">Rec Letter:</span>{' '}
+                <p className="text-sm text-right"><span className="font-medium">RL:</span></p>
+                <p className="text-sm text-left">
                   <span
                     className={`inline-block px-2 py-0.2 rounded-full text-xs font-medium ${
                       submission.rl_is_completed
@@ -179,14 +198,18 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
               </div>
 
               {/* Dates */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 text-center">
                 <p className="text-sm">
-                  <span className="font-medium">Submitted:</span>{' '}
+                  <span className="font-medium">Submitted at:</span>{' '}
                   {new Date(submission.submitted_at).toLocaleString()}
                 </p>
                 <p className="text-sm">
-                  <span className="font-medium">Updated:</span>{' '}
+                  <span className="font-medium">Updated at:</span>{' '}
                   {submission.updated_at ? new Date(submission.updated_at).toLocaleString() : '—'}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Reviewed at:</span>{' '}
+                  {submission.reviewed_at ? new Date(submission.reviewed_at).toLocaleString() : '—'}
                 </p>
               </div>
 
