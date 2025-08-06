@@ -5,20 +5,30 @@ import InterestsEditor from "@/components/ui/student/InterestsEditor";
 import SpecializationEditor from "@/components/ui/student/SpecializationEditor";
 import { updateInterestsField, updateSpecializationsField } from "@/lib/actions/student-actions";
 import { getCurrentStudentProfile } from "@/lib/services/student-service";
+import { errorFallback } from "@/lib/utils/error/error-handler";
 
 
 export default async function StudentProfile() {
   const { student, error } = await getCurrentStudentProfile();
-  
+
+  if (error) {
+    errorFallback(
+      error.message,
+      "/student",
+      "Go back to Dashboard"
+    )
+  }
   if (error || !student) {
     return (
       <div className="w-full min-h-screen flex items-center justify-center">
         <div className="text-red-600">
-          Error loading profile: {error?.message || "Student profile not found"}
+          Student profile not found
         </div>
       </div>
     );
   }
+
+  
 
   return (
     <div className="w-full min-h-screen">

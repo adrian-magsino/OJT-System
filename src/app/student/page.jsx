@@ -5,6 +5,7 @@ import HteProfile from "@/components/ui/hte/HteProfile";
 import Pagination from "@/components/ui/Pagination";
 import SkeletonLoader from "@/components/ui/SkeletonLoader";
 import { getHTEs } from "@/lib/services/hte-service";
+import { errorFallback } from "@/lib/utils/error/error-handler";
 import { Suspense } from "react";
 
 
@@ -19,11 +20,11 @@ export default async function StudentDashboard({ searchParams }) {
     await getHTEs(currentPage, itemPerPage);
 
   if (error) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-red-600">Error loading HTEs: {error.message}</p> 
-      </div>
-    )
+    errorFallback(
+      error.message,
+      "/",
+      "Go back"
+    );
   }
 
   const selectedHte = htes?.find(hte => hte.hte_id === selectedHteId);
