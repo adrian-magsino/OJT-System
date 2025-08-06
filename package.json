@@ -21,6 +21,7 @@
     "@types/estree": "^1.0.8",
     "eslint": "^9",
     "eslint-config-next": "15.4.1",
+    "supabase": "^2.33.9",
     "tailwindcss": "^4"
   }
 }

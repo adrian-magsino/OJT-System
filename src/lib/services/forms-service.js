@@ -1,28 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './user-service';
 
-export const getForm2Submissions = async () => {
-  const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from('student_form2_submissions')
-    .select(`
-      submission_id,
-      submission_status,
-      submitted_at,
-      student_training_info (
-        student_name,
-        student_email
-      ),
-      hte_recommendation_info (
-        company_name,
-        address
-      )
-    `)
-    .order('submitted_at', { ascending: false });
-
-  return { data, error };
-};
 
 export const validateForm2Data = (formData) => {
   const errors = [];
@@ -31,9 +10,9 @@ export const validateForm2Data = (formData) => {
   if (!formData.student_name?.trim()) errors.push('Student name is required');
   if (!formData.student_number?.trim()) errors.push('Student number is required');
   if (!formData.student_email?.trim()) errors.push('Student email is required');
-  if (!formData.student_contact?.trim()) errors.push('Student contact is required');
+  if (!formData.student_contact_number?.trim()) errors.push('Student contact is required');
   if (!formData.parent_guardian_name?.trim()) errors.push('Guardian name is required');
-  if (!formData.parent_guardian_contact?.trim()) errors.push('Guardian contact is required');
+  if (!formData.parent_guardian_contact_number?.trim()) errors.push('Guardian contact is required');
   if (!formData.parent_guardian_email?.trim()) errors.push('Guardian email is required');
 
   // HTE recommendation validation
@@ -104,6 +83,96 @@ export async function submitForm2(formData) {
     return {
       success: false,
       error: { message: error.message || 'Failed to submit form'}
+    };
+  }
+  
+}
+
+
+export async function getCurrentUserForm2Submission() {
+  const supabase = await createClient();
+
+  // Get current user
+  const { user, error: userError } = await getCurrentUser();
+  if (userError || !user) {
+    return { data: null, error: userError || { message: 'User not authenticated' } };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('student_form2_submissions')
+      .select(`
+        submission_id,
+        submission_status,
+        submitted_at,
+        updated_at,
+        reviewed_at,
+        student_training_info (*),
+        hte_recommendation_info (*),
+        hte_moa_info (*)
+      `)
+      .eq('student_id', user.user_id)
+      .single();
+
+    if (error) {
+      // If no record found, return null data instead of error
+      if (error.code === 'PGRST116') {
+        return { data: null, error: null, hasSubmission: false };
+      }
+      throw error;
+    }
+
+    return { 
+      data, 
+      error: null, 
+      hasSubmission: true 
+    };
+  } catch (error) {
+    
+    console.error('Error fetching user form submission:', error);
+    return { 
+      data: null, 
+      error: { message: error.message || 'Failed to fetch form submission' },
+      hasSubmission: false 
+    };
+  }
+  
+}
+
+
+
+export async function updateForm2(formData) {
+  const supabase = await createClient();
+
+  const { user, error: userError } = await getCurrentUser();
+
+  if (userError || !user) {
+    return { success: false, error: userError || { message: 'User not authenticated' } };
+  }
+
+  const validationErrors = validateForm2Data(formData);
+  if (validationErrors.length > 0) {
+    return { success: false, error: { message: validationErrors.join(', ')}};
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('update_form2_application', {
+      p_student_id: user.user_id,
+      p_form_data: formData
+    });
+
+    if (error) throw error;
+
+    return {
+      success: true,
+      data,
+      message: 'Form updated successfully'
+    };
+  } catch (error) {
+    console.error('Form update error', error);
+    return {
+      success: false,
+      error: { message: error.message || 'Failed to update form'}
     };
   }
 }

@@ -1,459 +1,206 @@
-'use client';
-import { submitform2Action } from '@/lib/actions/form-actions';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import Link from "next/link";
+import { getCurrentUserForm2Submission } from "@/lib/services/forms-service";
 
-export default function Form2InfoSheet() {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const emptyFormData = {
-    // Student Training Information
-    student_name: '',
-    student_number: '',
-    student_email: '',
-    student_contact: '',
-    parent_guardian_name: '',
-    parent_guardian_contact: '',
-    parent_guardian_email: '',
-    
-    // HTE/IP Information for Recommendation Letter
-    company_name: '',
-    company_address: '',
-    company_contact_number: '',
-    company_email: '',
-    representative_name: '',
-    representative_title: '',
-    representative_designation: '',
-    
-    // HTE/IP Information for Memorandum of Agreement
-    main_signatory_name: '',
-    main_signatory_title: '',
-    main_signatory_designation: '',
-    first_witness_name: '',
-    first_witness_title: '',
-    first_witness_designation: '',
-    second_witness_name: '',
-    second_witness_title: '',
-    second_witness_designation: ''
-  };
+export default async function Form2Page(){
+  const { data: submission, error, hasSubmission } = await getCurrentUserForm2Submission();
 
-  const [formData, setFormData] = useState(emptyFormData);
+  if (error) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 text-xl mb-4">
+            Error loading form submission
+          </div>
+          <p className="text-gray-600">{error.message}</p>
+          <Link
+            href="/student"
+            className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Return to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  return (
+    <div className="w-full min-h-screen">
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-white shadow-lg rounded-lg p-8">
+          <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
+            Student Application Form 2
+          </h1>
+          
+          <SubmissionDetails 
+            submission={submission} 
+            hasSubmission={hasSubmission} 
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    //To prevent double submission 
-    if (isSubmitting) return;
-
-
-    setIsSubmitting(true);
-    console.log('Form Data:', formData);
-    try {
-      const result = await submitform2Action(formData);
-
-      if (result.success) {
-        alert('Form submitted successfully!');
-        setFormData(emptyFormData);
-        router.push('/student');
-      } else {
-        alert(`Error: ${result.error.message}`);
-      }
-    } catch (error) {
-      console.error('Submission error:', error);
-      alert('An unexpected error occurred. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+const SubmissionStatus = ({ status }) => {
+  const getStatusConfig = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'approved':
+        return {
+          bgColor: 'bg-green-100',
+          textColor: 'text-green-800',
+          borderColor: 'border-green-200',
+          icon: (
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+          ),
+          label: 'APPROVED'
+        };
+      case 'rejected':
+        return {
+          bgColor: 'bg-red-100',
+          textColor: 'text-red-800',
+          borderColor: 'border-red-200',
+          icon: (
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+          ),
+          label: 'REJECTED'
+        };
+      case 'pending':
+      default:
+        return {
+          bgColor: 'bg-yellow-100',
+          textColor: 'text-yellow-800',
+          borderColor: 'border-yellow-200',
+          icon: (
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+            </svg>
+          ),
+          label: 'PENDING'
+        };
     }
   };
 
-  const titleOptions = ['Mr.', 'Ms.', 'Dr.', 'Engr.', 'Arch.', 'Hon.'];
+  const config = getStatusConfig(status);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-        Student Application Forms
-      </h1>
-      
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Student Training Information */}
-        <section className="bg-blue-50 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4 text-blue-800">
-            Student Training Information
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name *
-              </label>
-              <input
-                type="text"
-                name="student_name"
-                value={formData.student_name}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Student Number *
-              </label>
-              <input
-                type="text"
-                name="student_number"
-                value={formData.student_number}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                E-mail Address *
-              </label>
-              <input
-                type="email"
-                name="student_email"
-                value={formData.student_email}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contact Number *
-              </label>
-              <input
-                type="tel"
-                name="student_contact"
-                value={formData.student_contact}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Parent / Guardian Name *
-              </label>
-              <input
-                type="text"
-                name="parent_guardian_name"
-                value={formData.parent_guardian_name}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Parent / Guardian Contact Number *
-              </label>
-              <input
-                type="tel"
-                name="parent_guardian_contact"
-                value={formData.parent_guardian_contact}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Parent / Guardian E-mail Address *
-              </label>
-              <input
-                type="email"
-                name="parent_guardian_email"
-                value={formData.parent_guardian_email}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
+    <span 
+      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${config.bgColor} ${config.textColor} ${config.borderColor}`}
+    >
+      {config.icon}
+      {config.label}
+    </span>
+  );
+};
+
+function SubmissionDetails({ submission, hasSubmission }) {
+  if (hasSubmission) {
+    return (
+      <div className="text-center space-y-6">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+          <div className="flex items-center justify-center mb-4">
+            <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
-        </section>
-
-        {/* HTE/IP Information for Recommendation Letter */}
-        <section className="bg-green-50 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4 text-green-800">
-            Host Training Establishment / Industry Partner (HTE/IP) - Recommendation Letter
+          <h2 className="text-xl font-semibold text-green-800 mb-2">
+            Form Already Submitted
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                HTE / IP / Company Name *
-              </label>
-              <input
-                type="text"
-                name="company_name"
-                value={formData.company_name}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                required
-              />
+          <p className="text-green-700 mb-4">
+            You have successfully submitted your application form.
+          </p>
+          <div className="space-y-2 text-sm text-green-600">
+            <div className="flex items-center justify-center">
+              <strong>Status:</strong>
+              <SubmissionStatus status={submission?.submission_status} />
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contact Number *
-              </label>
-              <input
-                type="tel"
-                name="company_contact_number"
-                value={formData.company_contact_number}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                required
-              />
-            </div>
-            
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Address *
-              </label>
-              <textarea
-                name="company_address"
-                value={formData.company_address}
-                onChange={handleInputChange}
-                rows="3"
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                E-mail Address *
-              </label>
-              <input
-                type="email"
-                name="company_email"
-                value={formData.company_email}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Representative Name *
-              </label>
-              <input
-                type="text"
-                name="representative_name"
-                value={formData.representative_name}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Representative Title *
-              </label>
-              <select
-                name="representative_title"
-                value={formData.representative_title}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                required
-              >
-                <option value="">Select Title</option>
-                {titleOptions.map(title => (
-                  <option key={title} value={title}>{title}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Designation / Position *
-              </label>
-              <input
-                type="text"
-                name="representative_designation"
-                value={formData.representative_designation}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                required
-              />
-            </div>
+            <p><strong>Submitted:</strong> {new Date(submission?.submitted_at).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            })}</p>
+            <p><strong>Updated:</strong> {new Date(submission?.updated_at).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            })}</p>
+            {submission?.reviewed_at && (
+              <p><strong>Reviewed:</strong> {new Date(submission?.reviewed_at).toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })}</p>
+            )}
           </div>
-        </section>
-
-        {/* HTE/IP Information for Memorandum of Agreement */}
-        <section className="bg-purple-50 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4 text-purple-800">
-            Host Training Establishment / Industry Partner (HTE/IP) - Memorandum of Agreement
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name of Main Signatory *
-              </label>
-              <input
-                type="text"
-                name="main_signatory_name"
-                value={formData.main_signatory_name}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Main Signatory Title *
-              </label>
-              <select
-                name="main_signatory_title"
-                value={formData.main_signatory_title}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                required
-              >
-                <option value="">Select Title</option>
-                {titleOptions.map(title => (
-                  <option key={title} value={title}>{title}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Main Signatory Position *
-              </label>
-              <input
-                type="text"
-                name="main_signatory_designation"
-                value={formData.main_signatory_designation}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name of First Witness
-              </label>
-              <input
-                type="text"
-                name="first_witness_name"
-                value={formData.first_witness_name}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                First Witness Title
-              </label>
-              <select
-                name="first_witness_title"
-                value={formData.first_witness_title}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              >
-                <option value="">Select Title</option>
-                {titleOptions.map(title => (
-                  <option key={title} value={title}>{title}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                First Witness Designation / Position
-              </label>
-              <input
-                type="text"
-                name="first_witness_designation"
-                value={formData.first_witness_designation}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name of Second Witness 
-              </label>
-              <input
-                type="text"
-                name="second_witness_name"
-                value={formData.second_witness_name}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Second Witness Title
-              </label>
-              <select
-                name="second_witness_title"
-                value={formData.second_witness_title}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              >
-                <option value="">Select Title</option>
-                {titleOptions.map(title => (
-                  <option key={title} value={title}>{title}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Second Witness Designation / Position
-              </label>
-              <input
-                type="text"
-                name="second_witness_designation"
-                value={formData.second_witness_designation}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              />
-            </div>           
-          </div>
-        </section>
-
-        {/* Submit Button */}
-        <div className="text-center">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`font-bold py-3 px-8 rounded-lg transition duration-200 shadow-lg ${
-            isSubmitting 
-              ? 'bg-gray-400 cursor-not-allowed text-gray-700' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}
-        >
-          {isSubmitting ? 'Submitting...' : 'Submit Application'}
-          </button>
         </div>
-      </form>
+        
+        <div className="space-y-4">
+          <Link
+            href="/student/forms/edit"
+            className="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Edit Your Submission
+          </Link>
+          
+          <div>
+            <Link
+              href="/student"
+              className="text-gray-600 hover:text-gray-800 underline"
+            >
+              Return to Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="text-center space-y-6">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="flex items-center justify-center mb-4">
+          <svg className="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <h2 className="text-xl font-semibold text-blue-800 mb-2">
+          No Form Submitted Yet
+        </h2>
+        <p className="text-blue-700 mb-4">
+          You haven't submitted your application form. Please fill out the required information to apply for your OJT placement.
+        </p>
+      </div>
+      
+      <div className="space-y-4">
+        <Link
+          href="/student/forms/edit"
+          className="inline-block px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+        >
+          Fill Out Application Form
+        </Link>
+        
+        <div>
+          <Link
+            href="/student"
+            className="text-gray-600 hover:text-gray-800 underline"
+          >
+            Return to Dashboard
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
