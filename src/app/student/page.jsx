@@ -13,7 +13,7 @@ export default async function StudentDashboard({ searchParams }) {
   const params = await searchParams;
   const selectedHteId = params?.hte;
   const currentPage = parseInt(params?.page) || 1;
-  const itemPerPage = 2 //Number of HTEs displayed per page
+  const itemPerPage = 4 //Number of HTEs displayed per page
 
   //fetch HTEs per page
   const { htes, error, totalCount, totalPages, hasNextPage, hasPreviousPage } = 
