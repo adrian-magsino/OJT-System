@@ -28,7 +28,7 @@ export default async function Form2Page(){
       <div className="max-w-4xl mx-auto p-6">
         <div className="bg-white shadow-lg rounded-lg p-8">
           <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-            Student Application Form 2
+            Student Training Information Sheet
           </h1>
           
           <SubmissionDetails 

@@ -14,7 +14,7 @@ export default function Sidebar() {
           </li>
           <li>
             <Link href="/student/forms" className={linkClasses}>
-              <span className="ms-3">PAGE 2</span>
+              <span className="ms-3">FORM 2</span>
             </Link>
           </li>
           <li>
