@@ -198,19 +198,8 @@ export default function EditForm2() {
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">
-          {hasExistingSubmission ? 'Edit Application Form' : 'Student Application Form'}
+          {hasExistingSubmission ? 'Edit Student Information Sheet' : 'Student Information Sheet'}
         </h1>
-        {hasExistingSubmission && (
-          <div className="text-center">
-            <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-              submissionStatus === 'approved' ? 'bg-green-100 text-green-800' :
-              submissionStatus === 'rejected' ? 'bg-red-100 text-red-800' :
-              'bg-yellow-100 text-yellow-800'
-            }`}>
-              Status: {submissionStatus?.toUpperCase()}
-            </span>
-          </div>
-        )}
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-8">

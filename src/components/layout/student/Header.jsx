@@ -37,10 +37,12 @@ export default function StudentHeader({ user, error }) {
             className="hover:bg-green-600 rounded-lg transition-colors"
           >
             <div className="flex flex-row items-center gap-3">
-              <div data-component="avatar" className="bg-amber-300 w-10 h-10 rounded-full flex items-center justify-center">
-                <span className="text-gray-800 font-semibold text-sm">{user_name.toUpperCase().trim()[0]}</span>
+              {/*User Avatar */}
+              <div data-component="avatar" className="bg-amber-300 w-6 h-6 lg:w-10 lg:h-10 rounded-full flex items-center justify-center">
+                <span className="text-gray-800 font-semibold text-xs lg:text-sm">{user_name.toUpperCase().trim()[0]}</span>
               </div>
-              <span className="text-white font-medium">{user_name.toUpperCase().trim()}</span>
+              {/*User Name */}
+              <span className="text-white text-xs md:text-sm lg:font-medium">{user_name.toUpperCase().trim()}</span>
               {/* Dropdown arrow */}
               <svg 
                 className={`w-4 h-4 text-white transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
