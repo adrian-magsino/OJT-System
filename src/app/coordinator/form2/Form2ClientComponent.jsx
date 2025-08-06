@@ -140,10 +140,10 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
                   <td className="px-4 py-2 border">{submission.company_name}</td>
                   <td className="px-4 py-2 border">{submission.submission_status}</td>
                   <td className="px-4 py-2 border">
-                    {submission.has_moa ? 'Yes' : 'No'}
+                    {submission.moa_is_completed ? 'Yes' : 'No'}
                   </td>
                   <td className="px-4 py-2 border">
-                    {submission.has_recommendation_letter ? 'Yes' : 'No'}
+                    {submission.rl_is_completed ? 'Yes' : 'No'}
                   </td>
                   <td className="px-4 py-2 border">
                     {new Date(submission.submitted_at).toLocaleString()}
@@ -169,10 +169,10 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
                       <button
                         onClick={() => generateDocument(submission.submission_id, 'moa')}
                         disabled={
-                          submission.submission_status !== 'approved' || submission.has_moa
+                          submission.submission_status !== 'approved' || submission.moa_is_completed
                         }
                         className={`px-2 py-1 rounded text-sm text-white ${
-                          submission.submission_status !== 'approved' || submission.has_moa
+                          submission.submission_status !== 'approved' || submission.moa_is_completed
                             ? 'bg-gray-400 cursor-not-allowed'
                             : 'bg-blue-500 hover:bg-blue-600'
                         }`}
@@ -183,10 +183,10 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
                       <button
                         onClick={() => generateDocument(submission.submission_id, 'recommendation_letter')}
                         disabled={
-                          submission.submission_status !== 'approved' || submission.has_recommendation_letter
+                          submission.submission_status !== 'approved' || submission.rl_is_completed
                         }
                         className={`px-2 py-1 rounded text-sm text-white ${
-                          submission.submission_status !== 'approved' || submission.has_recommendation_letter
+                          submission.submission_status !== 'approved' || submission.rl_is_completedr
                             ? 'bg-gray-400 cursor-not-allowed'
                             : 'bg-purple-500 hover:bg-purple-600'
                         }`}
