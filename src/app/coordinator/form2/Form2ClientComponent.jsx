@@ -151,44 +151,51 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
                   <td className="px-4 py-2 border">
                     {submission.updated_at ? new Date(submission.updated_at).toLocaleString() : '—'}
                   </td>
-                  <td className="px-4 py-2 border space-x-2">
-                    {submission.submission_status === 'pending' && (
-                      <>
-                        <button
-                          onClick={() => reviewSubmission(submission.submission_id, 'approved')}
-                          className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => reviewSubmission(submission.submission_id, 'rejected')}
-                          className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
-                    {submission.submission_status === 'approved' && (
-                      <>
-                        {!submission.has_moa && (
-                          <button
-                            onClick={() => generateDocument(submission.submission_id, 'moa')}
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
-                          >
-                            Generate MOA
-                          </button>
-                        )}
-                        {!submission.has_recommendation_letter && (
-                          <button
-                            onClick={() => generateDocument(submission.submission_id, 'recommendation_letter')}
-                            className="bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded"
-                          >
-                            Generate Rec Letter
-                          </button>
-                        )}
-                      </>
-                    )}
+                  <td className="px-4 py-2 border">
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => reviewSubmission(submission.submission_id, 'approved')}
+                        className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => reviewSubmission(submission.submission_id, 'rejected')}
+                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm"
+                      >
+                        Reject
+                      </button>
+
+                      <button
+                        onClick={() => generateDocument(submission.submission_id, 'moa')}
+                        disabled={
+                          submission.submission_status !== 'approved' || submission.has_moa
+                        }
+                        className={`px-2 py-1 rounded text-sm text-white ${
+                          submission.submission_status !== 'approved' || submission.has_moa
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-blue-500 hover:bg-blue-600'
+                        }`}
+                      >
+                        Generate MOA
+                      </button>
+
+                      <button
+                        onClick={() => generateDocument(submission.submission_id, 'recommendation_letter')}
+                        disabled={
+                          submission.submission_status !== 'approved' || submission.has_recommendation_letter
+                        }
+                        className={`px-2 py-1 rounded text-sm text-white ${
+                          submission.submission_status !== 'approved' || submission.has_recommendation_letter
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-purple-500 hover:bg-purple-600'
+                        }`}
+                      >
+                        Generate Rec Letter
+                      </button>
+                    </div>
                   </td>
+
                 </tr>
               ))
             )}
