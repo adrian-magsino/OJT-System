@@ -83,7 +83,7 @@ export default async function StudentDashboard({ searchParams }) {
 
       {/*Right Section */}
       <div className={`w-1/2 flex-col bg-gray-50 ${selectedHteId ? 'flex' : 'hidden lg:flex'}`}>
-        <div className="h-full overflow-y-auto">
+        <div className="h-full">
             {selectedHteId ? (
               <Suspense fallback={<div className="p-6"><SkeletonLoader /></div>}>
                 <HteProfile hte_id={selectedHteId} />
