@@ -4,6 +4,7 @@ import { parseParameter } from "next/dist/shared/lib/router/utils/route-regex";
 import Image from "next/image";
 import Link from "next/link"; 
 import { usePathname, useSearchParams } from "next/navigation";
+import { MapPin } from "lucide-react";
 
 export default function HteCard({ hte_data, isSelected}) {
   const pathname = usePathname();
@@ -49,7 +50,7 @@ export default function HteCard({ hte_data, isSelected}) {
 
 function HteCardContent({ hte_data }) {
   return (
-    <div className="flex">
+    <div className="flex p-2">
       {/*HTE Image Container */}
       <div className="w-20 h-20 relative flex-shrink-0 mb-5">
         <Image 
@@ -61,10 +62,10 @@ function HteCardContent({ hte_data }) {
       </div>
 
       {/*HTE details preview */}
-      <div className="flex flex-col mx-10">
+      <div className="flex flex-col ml-6">
         <h1 className="text-xl font-bold text-green-800">{hte_data.name}</h1>
-        <p>{hte_data.location}</p>
-        <p>{hte_data.nature_of_work}</p>
+        <div className="flex gap-2 pt-2"><MapPin className="w-5 h-5"/><span className="text-sm">{hte_data.location}</span></div>
+        <p className="text-gray-600 text-sm pt-2">{hte_data.nature_of_work}</p>
       </div>
       
     </div>

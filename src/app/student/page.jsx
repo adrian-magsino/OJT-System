@@ -45,9 +45,19 @@ export default async function StudentDashboard({ searchParams }) {
       <div className="w-full lg:w-1/2 flex flex-col border-r border-gray-200">
 
         {/*Fixed Header */}
-        <div className="flex-shrink-0 p-6 border-b border-gray-100 bg-white">
-          <h2 className="text-2xl font-bold text-gray-900">Host Training Establishments</h2>
-          <p className="text-sm text-gray-600 mt-1">Showing {htes?.length || 0} of {totalCount} HTEs</p>
+        <div className="flex-shrink-0 p-5 border-b border-gray-100 bg-white">
+          <h2 className="text-xl font-bold text-gray-900">Host Training Establishments</h2>
+          {/*HTE filters (not yet functional) */}
+          <div className="flex items-center pt-3">
+            <button className="px-4 py-1 border-1 border-black rounded-l-xl hover:bg-green-200">
+              <span className="text-sm">All</span>
+            </button>
+            <button className="px-4 py-1 border-1 border-black rounded-r-xl hover:bg-green-200">
+              <span className="text-sm">Recommended</span>
+            </button>
+            <p className="text-sm text-gray-600 mt-1 ml-5">Showing {htes?.length || 0} of {totalCount} HTEs</p>
+          </div>
+           
         </div>
 
         {/*List of HTEs */}
