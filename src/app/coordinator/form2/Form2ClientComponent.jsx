@@ -68,129 +68,169 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
 
   const filteredSubmissions = submissions.filter(submission => {
     const matchesFilter = filter === 'all' || submission.submission_status === filter
-    const matchesSearch = 
+    const matchesSearch =
       submission.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       submission.student_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       submission.company_name.toLowerCase().includes(searchTerm.toLowerCase())
-    
+
     return matchesFilter && matchesSearch
   })
 
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-4">Form 2 Submissions</h1>
-
-        {/* Filters and Search */}
-        <div className="flex gap-4 mb-4">
-          <select 
-            value={filter} 
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <h1 className="text-3xl font-bold text-gray-800">Form 2 Submissions</h1>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <select
+            value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="px-3 py-2 border rounded-md"
           >
-            <option value="all">All Submissions</option>
+            <option value="all">All</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
-          
           <input
             type="text"
-            placeholder="Search by student name, number, or company..."
+            placeholder="Search by name, number, or company"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-3 py-2 border rounded-md flex-1"
+            className="px-3 py-2 border rounded-md w-full sm:w-64"
           />
         </div>
       </div>
 
-      {/* Loading State */}
-      {loading && (
-        <div className="flex justify-center p-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      {loading ? (
+        <div className="flex justify-center items-center h-48">
+          <div className="text-lg">Loading submissions...</div>
         </div>
-      )}
+      ) : (
+        <>
+          {filteredSubmissions.length === 0 ? (
+            <div className="text-center text-gray-500 py-12">
+              No submissions found.
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Documents</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dates</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredSubmissions.map((submission) => (
+                      <tr key={submission.submission_id} className="hover:bg-gray-50">
+                        {/* Student */}
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-medium text-gray-900">{submission.student_name}</div>
+                          <div className="text-sm text-gray-500">{submission.student_number}</div>
+                        </td>
 
-      {/* Submissions Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead>
-            <tr>
-              <th className="px-4 py-2 border">Student Name</th>
-              <th className="px-4 py-2 border">Student Number</th>
-              <th className="px-4 py-2 border">Company</th>
-              <th className="px-4 py-2 border">Status</th>
-              <th className="px-4 py-2 border">MOA Generated</th>
-              <th className="px-4 py-2 border">Rec Letter Generated</th>
-              <th className="px-4 py-2 border">Submitted At</th>
-              <th className="px-4 py-2 border">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredSubmissions.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="text-center py-4">No submissions found.</td>
-              </tr>
-            ) : (
-              filteredSubmissions.map((submission) => (
-                <tr key={submission.submission_id}>
-                  <td className="px-4 py-2 border">{submission.student_name}</td>
-                  <td className="px-4 py-2 border">{submission.student_number}</td>
-                  <td className="px-4 py-2 border">{submission.company_name}</td>
-                  <td className="px-4 py-2 border">{submission.submission_status}</td>
-                  <td className="px-4 py-2 border">
-                    {submission.has_moa ? 'Yes' : 'No'}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {submission.has_recommendation_letter ? 'Yes' : 'No'}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {new Date(submission.submitted_at).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-2 border space-x-2">
-                    {submission.submission_status === 'pending' && (
-                      <>
-                        <button
-                          onClick={() => reviewSubmission(submission.submission_id, 'approved')}
-                          className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => reviewSubmission(submission.submission_id, 'rejected')}
-                          className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
-                    {submission.submission_status === 'approved' && (
-                      <>
-                        {!submission.has_moa && (
-                          <button
-                            onClick={() => generateDocument(submission.submission_id, 'moa')}
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
-                          >
-                            Generate MOA
-                          </button>
-                        )}
-                        {!submission.has_recommendation_letter && (
-                          <button
-                            onClick={() => generateDocument(submission.submission_id, 'recommendation_letter')}
-                            className="bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded"
-                          >
-                            Generate Rec Letter
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                        {/* Company */}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {submission.company_name}
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-6 py-4 text-sm">
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                            submission.submission_status === 'pending'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : submission.submission_status === 'approved'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {submission.submission_status}
+                          </span>
+                        </td>
+
+                        {/* MOA/RL Status */}
+                        <td className="px-6 py-4 space-y-1 text-sm">
+                          <div>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                              submission.moa_is_completed
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              MOA: {submission.moa_is_completed ? 'Generated' : 'Not Generated'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                              submission.rl_is_completed
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              RL: {submission.rl_is_completed ? 'Generated' : 'Not Generated'}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Dates */}
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          <div><span className="font-medium">Submitted:</span> {new Date(submission.submitted_at).toLocaleString()}</div>
+                          <div><span className="font-medium">Updated:</span> {submission.updated_at ? new Date(submission.updated_at).toLocaleString() : '—'}</div>
+                          <div><span className="font-medium">Reviewed:</span> {submission.reviewed_at ? new Date(submission.reviewed_at).toLocaleString() : '—'}</div>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-6 py-4 space-y-2 text-sm">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => reviewSubmission(submission.submission_id, 'approved')}
+                              className="bg-green-100 text-green-800 hover:bg-green-200 px-2 py-1 rounded text-xs"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => reviewSubmission(submission.submission_id, 'rejected')}
+                              className="bg-red-100 text-red-800 hover:bg-red-200 px-2 py-1 rounded text-xs"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => generateDocument(submission.submission_id, 'moa')}
+                              disabled={submission.submission_status !== 'approved' || submission.moa_is_completed}
+                              className={`px-2 py-1 rounded text-xs text-white flex-1 ${
+                                submission.submission_status !== 'approved' || submission.moa_is_completed
+                                  ? 'bg-gray-400 cursor-not-allowed'
+                                  : 'bg-blue-500 hover:bg-blue-600'
+                              }`}
+                            >
+                              Generate MOA
+                            </button>
+                            <button
+                              onClick={() => generateDocument(submission.submission_id, 'recommendation_letter')}
+                              disabled={submission.submission_status !== 'approved' || submission.rl_is_completed}
+                              className={`px-2 py-1 rounded text-xs text-white flex-1 ${
+                                submission.submission_status !== 'approved' || submission.rl_is_completed
+                                  ? 'bg-gray-400 cursor-not-allowed'
+                                  : 'bg-purple-500 hover:bg-purple-600'
+                              }`}
+                            >
+                              Generate RL
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }
