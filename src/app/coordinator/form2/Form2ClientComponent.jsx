@@ -104,23 +104,12 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
         </div>
       </div>
 
-      {/* Header Card */}
-      <div className="bg-gray-100 border border-gray-200 rounded-lg p-4 flex flex-row items-center justify-between gap-2 mb-2">
-        <div className="flex-1 min-w-0 text-center">
-          <p className="text-sm font-bold">Student</p>
-        </div>
-        <div className="flex-1 min-w-0 text-center">
-          <p className="text-sm font-bold">Company</p>
-        </div>
-        <div className="flex-1 min-w-0 text-center">
-          <p className="text-sm font-bold">Status</p>
-        </div>
-        <div className="flex-1 min-w-0 text-center">
-          <p className="text-sm font-bold">Dates</p>
-        </div>
-        <div className="flex-1 min-w-[160px] text-center">
-          <p className="text-sm font-bold">Act</p>
-        </div>
+      <div className="grid grid-cols-5 gap-2 bg-gray-100 border border-gray-200 rounded-lg p-4 mb-2 text-center">
+        <p className="text-sm font-bold">STUDENT</p>
+        <p className="text-sm font-bold">COMPANY</p>
+        <p className="text-sm font-bold">STATUS</p>
+        <p className="text-sm font-bold">DATES</p>
+        <p className="text-sm font-bold">ACTION</p>
       </div>
 
       {/* Loading State */}
@@ -140,8 +129,9 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
           filteredSubmissions.map((submission) => (
             <div
               key={submission.submission_id}
-              className="bg-white border border-gray-200 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow flex flex-row items-center justify-between gap-2"
+              className="grid grid-cols-5 gap-2 bg-white border border-gray-200 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow items-center"
             >
+
               {/* Student Info */}
               <div className="flex-1 min-w-0 text-center">
                 <h3 className="text-lg font-semibold truncate">{submission.student_name}</h3>
