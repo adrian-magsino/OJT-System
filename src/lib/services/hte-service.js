@@ -4,7 +4,7 @@ export async function getAllHTEs() {
   const supabase = await createClient();
   
   const { data: htes, error } = await supabase
-    .from('hte')
+    .from('hte_with_work_tasks')
     .select(`
       hte_id,
       name,
@@ -13,7 +13,8 @@ export async function getAllHTEs() {
       contact_number,
       email,
       website,
-      description
+      description,
+      work_tasks
       `)
       .eq('is_active', true)
       .order('name');
@@ -34,7 +35,7 @@ export async function getHTEs(page = 1, limit= 10) {
   const to = from + limit - 1;
 
   const { data: htes, error, count } = await supabase
-    .from('hte')
+    .from('hte_with_work_tasks')
     .select(`
       hte_id,
       name,
@@ -43,7 +44,8 @@ export async function getHTEs(page = 1, limit= 10) {
       contact_number,
       email,
       website,
-      description
+      description,
+      work_tasks
       `, { count: 'exact' })
       .eq('is_active', true)
       .order('name')
@@ -68,7 +70,7 @@ export async function getHTEById(hte_id) {
   const supabase = await createClient();
   
   const { data: hte, error } = await supabase
-    .from('hte')
+    .from('hte_with_work_tasks')
     .select(`
       hte_id,
       name,
@@ -77,7 +79,8 @@ export async function getHTEById(hte_id) {
       contact_number,
       email,
       website,
-      description
+      description,
+      work_tasks
       `)
       .eq('hte_id', hte_id)
       .eq('is_active', true)
