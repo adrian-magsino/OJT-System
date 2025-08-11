@@ -18,7 +18,7 @@ export default function HTEFilterButtons({ currentFilter, hasSpecializations }) 
   };
 
   return (
-    <div className="flex items-center pt-3">
+    <div className="flex items-center">
       <Link 
         href={createFilterUrl('all')}
         className={`px-4 py-1 border border-gray-200 rounded-l-xl transition-colors ${
