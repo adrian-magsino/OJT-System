@@ -3,10 +3,11 @@
 "use client"
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import LogoutButton from '@/components/auth/LogoutButton'
 
-export default function StudentHeader({ user, error }) {
+export default function StudentHeader({ user, error, student }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   if (error || !user) {
@@ -21,6 +22,7 @@ export default function StudentHeader({ user, error }) {
   }
 
   const user_name = user.name;
+  const profilePictureUrl = student?.profile_picture_url;
 
   return (
     <header className="w-full h-12 fixed bg-green-700 z-40">
@@ -38,8 +40,24 @@ export default function StudentHeader({ user, error }) {
           >
             <div className="flex flex-row items-center gap-3">
               {/*User Avatar */}
-              <div data-component="avatar" className="bg-amber-300 w-6 h-6 lg:w-10 lg:h-10 rounded-full flex items-center justify-center">
-                <span className="text-gray-800 font-semibold text-xs lg:text-sm">{user_name.toUpperCase().trim()[0]}</span>
+              <div 
+                data-component="avatar" 
+                className="bg-amber-300 w-6 h-6 lg:w-10 lg:h-10 rounded-full flex items-center justify-center overflow-hidden border-2 border-white/20"
+              >
+                {profilePictureUrl ? (
+                  <Image
+                    src={profilePictureUrl}
+                    alt={`${user_name}'s profile picture`}
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                    sizes="40px"
+                  />
+                ) : (
+                  <span className="text-gray-800 font-semibold text-xs lg:text-sm">
+                    {user_name.toUpperCase().trim()[0]}
+                  </span>
+                )}
               </div>
               {/*User Name */}
               <span className="text-white text-xs md:text-sm lg:font-medium">{user_name.toUpperCase().trim()}</span>
@@ -58,6 +76,29 @@ export default function StudentHeader({ user, error }) {
           {/* Dropdown Menu */}
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+              <div className="flex items-center px-4 py-2 border-b border-gray-100">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-amber-300 flex items-center justify-center mr-3">
+                  {profilePictureUrl ? (
+                    <Image
+                      src={profilePictureUrl}
+                      alt={`${user_name}'s profile picture`}
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-cover"
+                      sizes="32px"
+                    />
+                  ) : (
+                    <span className="text-gray-800 font-semibold text-xs">
+                      {user_name.toUpperCase().trim()[0]}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-gray-900">{user_name}</span>
+                  <span className="text-xs text-gray-500">Student</span>
+                </div>
+              </div>
+              
               <Link
                 href="/student/profile"
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"

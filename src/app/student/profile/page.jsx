@@ -3,7 +3,8 @@
 import InfoField from "@/components/ui/InfoField";
 import InterestsEditor from "@/components/ui/student/InterestsEditor";
 import SpecializationEditor from "@/components/ui/student/SpecializationEditor";
-import { updateInterestsField, updateSpecializationsField } from "@/lib/actions/student-actions";
+import ProfilePictureEditor from "@/components/ui/student/ProfilePIctureEditor";
+import { updateInterestsField, updateSpecializationsField, updateProfilePicture } from "@/lib/actions/student-actions";
 import { getCurrentStudentProfile } from "@/lib/services/student-service";
 import { errorFallback } from "@/lib/utils/error/error-handler";
 
@@ -37,10 +38,13 @@ export default async function StudentProfile() {
           
           {/*Profile Container */}
           <div className="p-15">
+             <ProfilePictureEditor
+              currentProfilePicture={student.profile_picture_url}
+              studentName={student.name}
+              onSave={updateProfilePicture}
+            />
             <div className="flex flex-col items-center gap-5">
-              <div data-component="avatar" className="bg-amber-300 w-30 h-30 rounded-full flex items-center justify-center">
-                <span className="text-gray-800 font-semibold text-3xl">{student.name?.toUpperCase().trim()[0]}</span> {/* DISPLAY INITIAL IF THERE'S NO IMAGE */}
-              </div>
+              
               <span className="text-gray-800 font-medium text-2xl">{student.name}</span>
               <span className="text-gray-800 font-medium">Verification Status: {student.verification_status}</span>
             </div>
