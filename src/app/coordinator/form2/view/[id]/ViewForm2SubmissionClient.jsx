@@ -6,8 +6,12 @@ export default function ViewForm2SubmissionClient({ submission }) {
   const router = useRouter()
 
   const handleBack = () => {
-    router.push('/coordinator/form2') // adjust path as needed
-  }
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/coordinator/form2');
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
