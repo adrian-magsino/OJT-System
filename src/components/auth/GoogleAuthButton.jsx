@@ -11,7 +11,8 @@ export default function GoogleAuthButton() {
       provider: 'google',
       options: {
         queryParams: {
-        hd: 'cvsu.edu.ph'
+        hd: 'cvsu.edu.ph',
+        prompt: 'select_account'
       },
         redirectTo: `${window.location.origin}/auth/callback`
       }
