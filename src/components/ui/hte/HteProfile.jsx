@@ -36,6 +36,7 @@ export default async function HteProfile({ hte_id }) {
               fill 
               alt="Hte Profile Picture"
               className="object-cover border-1 border-black"
+              sizes="80px"
             />
           </div>
           <h3 className="font-bold text-xl ml-4">{hte.name}</h3>

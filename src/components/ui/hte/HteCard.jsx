@@ -9,18 +9,31 @@ import { MapPin } from "lucide-react";
 export default function HteCard({ hte_data, isSelected}) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const currentPage = searchParams.get('page') || '1'
+  const currentPage = searchParams.get('page') || '1';
+  const currentFilter = searchParams.get('filter') || 'all';
 
   const createDesktopUrl = () => {
     const params = new URLSearchParams();
     params.set('page', currentPage);
     params.set('hte', hte_data.hte_id);
+    
+    // Preserve the filter parameter
+    if (currentFilter !== 'all') {
+      params.set('filter', currentFilter);
+    }
+    
     return `${pathname}?${params.toString()}`;
   };
 
   const createMobileUrl = () => {
     const params = new URLSearchParams();
     params.set('from_page', currentPage);
+    
+    // Preserve the filter parameter for mobile too
+    if (currentFilter !== 'all') {
+      params.set('filter', currentFilter);
+    }
+    
     return `/student/hte/${hte_data.hte_id}?${params.toString()}`;
   }
 
@@ -58,6 +71,7 @@ function HteCardContent({ hte_data }) {
           fill 
           alt="Hte Profile Picture"
           className="object-cover border-2 border-black"
+          sizes="80px"
         />
       </div>
 
@@ -72,5 +86,3 @@ function HteCardContent({ hte_data }) {
   );
 
 }
-  
-
