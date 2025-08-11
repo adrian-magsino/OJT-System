@@ -204,8 +204,8 @@ export default function EditForm2() {
       
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Student Training Information */}
-        <section className="bg-blue-50 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4 text-blue-800">
+        <section className="bg-green-50 p-6 rounded-lg">
+          <h2 className="text-xl font-semibold mb-4 text-green-800">
             Student Training Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -420,8 +420,8 @@ export default function EditForm2() {
         </section>
 
         {/* HTE/IP Information for Memorandum of Agreement */}
-        <section className="bg-purple-50 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4 text-purple-800">
+        <section className="bg-green-50 p-6 rounded-lg">
+          <h2 className="text-xl font-semibold mb-4 text-green-800">
             Host Training Establishment / Industry Partner (HTE/IP) - Memorandum of Agreement
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -577,7 +577,7 @@ export default function EditForm2() {
             className={`font-bold py-3 px-8 rounded-lg transition duration-200 shadow-lg ${
               isSubmitting 
                 ? 'bg-gray-400 cursor-not-allowed text-gray-700' 
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-green-600 hover:bg-green-700 text-white'
             }`}
           >
             {isSubmitting 
