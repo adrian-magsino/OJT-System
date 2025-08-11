@@ -45,12 +45,8 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
       .channel('form2_submissions')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'student_form2_submissions'
-        },
-        () => {
+        { event: '*', schema: 'public', table: 'student_form2_submissions' },
+        (payload) => {
           loadSubmissions()
         }
       )
