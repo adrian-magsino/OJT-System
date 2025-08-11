@@ -24,7 +24,8 @@ export async function getCurrentStudentProfile() {
       student_number,
       program,
       specializations,
-      interests
+      interests,
+      verification_status
     `)
     .eq("student_id", userData.user_id)
     .single()

@@ -28,14 +28,12 @@ export default async function StudentProfile() {
     );
   }
 
-  
-
   return (
     <div className="w-full min-h-screen">
       <div className="flex gap-[20px] flex-row flex-wrap bg-gray-50">
 
         {/*Main Info Container*/}
-        <div className="w-full min-h-30 grow bg-white border-2 mx-10 mt-10 flex flex-row">
+        <div className="w-full min-h-30 grow bg-white border-1 border-gray-200 mx-10 mt-10 flex flex-row">
           
           {/*Profile Container */}
           <div className="p-15">
@@ -44,15 +42,14 @@ export default async function StudentProfile() {
                 <span className="text-gray-800 font-semibold text-3xl">{student.name?.toUpperCase().trim()[0]}</span> {/* DISPLAY INITIAL IF THERE'S NO IMAGE */}
               </div>
               <span className="text-gray-800 font-medium text-2xl">{student.name}</span>
-              <span className="text-gray-800 font-medium">ADDITIONAL INFO</span>
-              <span className="text-gray-800 font-medium">ADDITIONAL INFO 2</span>
+              <span className="text-gray-800 font-medium">Verification Status: {student.verification_status}</span>
             </div>
           </div>
 
           {/*Personal Info Container */}
           <div className="grow">
             <div className="mt-8 mx-6">
-              <span className="text-bold text-xl">USER DETAILS</span>
+              <span className="text-bold text-xl">STUDENT DETAILS</span>
             </div>
             
             <div className="grid grid-cols-2 gap-10 px-8 py-8">
@@ -64,7 +61,7 @@ export default async function StudentProfile() {
           </div>
         </div>
         {/*Skills and Specializations Section*/}
-        <div className="w-full min-h-30 grow bg-white border-2 mx-10">
+        <div className="w-full min-h-30 grow bg-white border-1 border-gray-200 mx-10">
           <h3 className="ml-2 mt-2 font-bold">SKILLS AND SPECIALIZATIONS</h3>
 
           <SpecializationEditor
@@ -75,7 +72,7 @@ export default async function StudentProfile() {
         </div>
 
         {/*Interests Section*/}
-        <div className="w-full min-h-30 grow bg-white border-2 mx-10">
+        <div className="w-full min-h-30 grow bg-white border-1 border-gray-200 mx-10 mb-5">
           <h3 className="ml-2 mt-2 font-bold">INTERESTS</h3>
 
           <InterestsEditor 
@@ -85,8 +82,6 @@ export default async function StudentProfile() {
 
         </div>
         
-        {/*Other Info Container*/}
-        <div className="w-full min-h-30 grow bg-white border-2 mx-10">OTHER INFORMATION</div>
       </div>
     </div>
     

@@ -114,7 +114,7 @@ function SubmissionDetails({ submission, hasSubmission }) {
           </p>
           <div className="space-y-2 text-sm text-green-600">
             <div className="flex items-center justify-center">
-              <strong>Status:</strong>
+              <strong className="mr-2">Status:</strong>
               <SubmissionStatus status={submission?.submission_status} />
             </div>
             
@@ -150,7 +150,7 @@ function SubmissionDetails({ submission, hasSubmission }) {
         <div className="space-y-4">
           <Link
             href="/student/forms/edit"
-            className="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-block px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
             Edit Your Submission
           </Link>
