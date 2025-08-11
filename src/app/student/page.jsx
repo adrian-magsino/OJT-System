@@ -66,7 +66,7 @@ export default async function StudentDashboard({ searchParams }) {
             hasSpecializations={!!(student?.specializations?.length)}
           />
           
-          <p className="text-sm text-gray-600 mt-1 ml-5">
+          <p className="text-sm text-gray-600 mt-2 ml-5">
             Showing {htes?.length || 0} of {totalCount} HTEs
             {filter === 'recommended' && ' (recommended for you)'}
           </p>

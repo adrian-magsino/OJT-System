@@ -45,7 +45,7 @@ export default async function HteProfile({ hte_id }) {
 
       <div className="flex gap-2"><MapPin /> {hte.location}</div>
 
-      <div className="border-1 rounded-xl p-5">
+      <div className="border-1 rounded-xl p-5 border-gray-200">
         <h3 className="font-bold text-md text-green-800">WORK TASKS</h3>
         <ul className="list-disc pl-4 pt-2">
           {hte.work_tasks?.length > 0 ? (
@@ -61,13 +61,13 @@ export default async function HteProfile({ hte_id }) {
         
       </div>
 
-      <div className="border-1 rounded-xl p-5">
+      <div className="border-1 rounded-xl p-5 border-gray-200">
         <h3 className="font-bold text-md text-green-800">ABOUT THE COMPANY</h3>
         <p className="mt-2">{hte.nature_of_work} <span className="text-green-700 text-xs"> Nature of Work (for debugging only)</span></p>
         <p className="mt-2">{hte.description} <span className="text-green-700 text-xs"> Description (for debugging only)</span></p>
       </div>
 
-      <div className="border-1 rounded-xl p-5">
+      <div className="border-1 rounded-xl p-5 border-gray-200">
         <h3 className="font-bold text-md text-green-800">CONTACTS</h3>
         
         <div className="flex gap-2 pt-4">
@@ -87,7 +87,7 @@ export default async function HteProfile({ hte_id }) {
           <Contact /> {hte.contact_number}</div>
         
       </div>
-      <div className="border-1 rounded-xl p-5 ">
+      <div className="border-1 rounded-xl p-5 border-gray-200">
         <h3 className="font-bold text-md text-green-800">LINKS</h3>
 
         <div className="flex gap-2"><Link /> 

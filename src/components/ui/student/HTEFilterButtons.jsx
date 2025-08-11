@@ -21,7 +21,7 @@ export default function HTEFilterButtons({ currentFilter, hasSpecializations }) 
     <div className="flex items-center pt-3">
       <Link 
         href={createFilterUrl('all')}
-        className={`px-4 py-1 border border-black rounded-l-xl transition-colors ${
+        className={`px-4 py-1 border border-gray-200 rounded-l-xl transition-colors ${
           currentFilter === 'all' 
             ? 'bg-green-600 text-white' 
             : 'hover:bg-green-600 hover:text-white'
@@ -32,7 +32,7 @@ export default function HTEFilterButtons({ currentFilter, hasSpecializations }) 
       
       <Link 
         href={createFilterUrl('recommended')}
-        className={`px-4 py-1 border border-black rounded-r-xl transition-colors relative ${
+        className={`px-4 py-1 border border-gray-200 rounded-r-xl transition-colors relative ${
           currentFilter === 'recommended' 
             ? 'bg-green-600 text-white' 
             : 'hover:bg-green-600 hover:text-white'
