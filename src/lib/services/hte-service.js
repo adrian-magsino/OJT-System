@@ -174,7 +174,7 @@ export async function updateHTEWithWorkTasksService(hteId, formData, selectedWor
     hte_location: formData.location,
     hte_contact_number: formData.contact_number || null,
     hte_email: formData.email || null,
-    hte_website: formData.website || null,
+    hte_links: formData.links || null, // Changed from website to links
     hte_description: formData.description || null,
     task_category_ids: selectedWorkTasks
   })
