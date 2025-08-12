@@ -52,7 +52,7 @@ export async function updateStudentProfile(updates) {
     return { student: null, error: userError };
   }
 
-  if (userData.role !== "student") {
+  if (userData.role !== "student" && userData.role !== "admin") {
     return {
       student: null,
       error: { message: "User is not a student" }
