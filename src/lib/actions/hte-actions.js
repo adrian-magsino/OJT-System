@@ -7,7 +7,8 @@ import {
   getHTEs, 
   getHTEById, 
   getRecommendedHTEs, 
-  createHTEWithWorkTasksService  // <- Changed from createHTEWithWorkTasksAction to createHTEWithWorkTasksService
+  createHTEWithWorkTasksService,
+  reactivateHTEService
 } from "@/lib/services/hte-service";
 
 import { 
@@ -35,6 +36,20 @@ export async function deactivateHTEAction(hteId) {
       success: false,
       error: { message: 'Failed to deactivate HTE' }
     };
+  }
+}
+
+export async function reactivateHTEAction(hteId) {
+  try {
+    const data = await reactivateHTEService(hteId)
+    
+    // Revalidate HTE pages
+    revalidatePath('/coordinator/hte')
+    revalidatePath('/student/hte')
+    
+    return { success: true, data, error: null }
+  } catch (error) {
+    return { success: false, error: { message: error.message } }
   }
 }
 

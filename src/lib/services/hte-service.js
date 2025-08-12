@@ -138,6 +138,20 @@ export async function deactivateHTE(hte_id) {
   }
 }
 
+export async function reactivateHTEService(hteId) {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase.rpc('reactivate_hte', {
+    hte_uuid: hteId
+  })
+  
+  if (error) {
+    throw new Error(error.message || 'Failed to reactivate HTE')
+  }
+  
+  return data
+}
+
 export async function getWorkTaskCategoriesService() {
   const supabase = await createClient()
   
