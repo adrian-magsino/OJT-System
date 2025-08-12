@@ -109,3 +109,100 @@ export async function getRecommendedHTEs(studentSpecializations, page = 1, limit
     hasPreviousPage: page > 1
   };
 }
+
+export async function deactivateHTE(hte_id) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .rpc('deactivate_hte', {
+      hte_uuid: hte_id
+    });
+    
+  if (error) {
+    return { success: false, error: error.message };
+  }
+  
+  // The RPC returns a JSON object with success/error info
+  if (data.success) {
+    return { 
+      success: true, 
+      message: data.message,
+      data: data.data 
+    };
+  } else {
+    return { 
+      success: false, 
+      error: data.error.message,
+      code: data.error.code 
+    };
+  }
+}
+
+export async function getWorkTaskCategoriesService() {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase.rpc('get_work_task_categories')
+  
+  if (error) {
+    throw new Error(error.message || 'Failed to fetch work task categories')
+  }
+  
+  return data
+}
+
+export async function getHTEWithWorkTasksService(hteId) {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase.rpc('get_hte_with_work_tasks', {
+    hte_uuid: hteId
+  })
+  
+  if (error) {
+    throw new Error(error.message || 'Failed to fetch HTE data')
+  }
+  
+  return data
+}
+
+export async function updateHTEWithWorkTasksService(hteId, formData, selectedWorkTasks) {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase.rpc('update_hte_with_work_tasks', {
+    hte_uuid: hteId,
+    hte_name: formData.name,
+    hte_nature_of_work: formData.nature_of_work,
+    hte_location: formData.location,
+    hte_contact_number: formData.contact_number || null,
+    hte_email: formData.email || null,
+    hte_links: formData.links || null, // Changed from website to links
+    hte_description: formData.description || null,
+    task_category_ids: selectedWorkTasks
+  })
+  
+  if (error) {
+    throw new Error(error.message || 'Failed to update HTE')
+  }
+  
+  return data
+}
+
+export async function createHTEWithWorkTasksService(formData, selectedWorkTasks) {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase.rpc('create_hte_with_work_tasks', {
+    hte_name: formData.name,
+    hte_nature_of_work: formData.nature_of_work,
+    hte_location: formData.location,
+    hte_contact_number: formData.contact_number || null,
+    hte_email: formData.email || null,
+    hte_links: formData.links || null,
+    hte_description: formData.description || null,
+    task_category_ids: selectedWorkTasks
+  })
+  
+  if (error) {
+    throw new Error(error.message || 'Failed to create HTE')
+  }
+  
+  return data
+}
