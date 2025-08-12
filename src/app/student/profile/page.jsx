@@ -3,11 +3,10 @@
 import InfoField from "@/components/ui/InfoField";
 import InterestsEditor from "@/components/ui/student/InterestsEditor";
 import SpecializationEditor from "@/components/ui/student/SpecializationEditor";
-import ProfilePictureEditor from "@/components/ui/student/ProfilePIctureEditor";
-import { updateInterestsField, updateSpecializationsField, updateProfilePicture } from "@/lib/actions/student-actions";
+import { updateInterestsField, updateSpecializationsField } from "@/lib/actions/student-actions";
 import { getCurrentStudentProfile } from "@/lib/services/student-service";
 import { errorFallback } from "@/lib/utils/error/error-handler";
-
+import Image from "next/image";
 
 export default async function StudentProfile() {
   const { student, error } = await getCurrentStudentProfile();
@@ -38,12 +37,27 @@ export default async function StudentProfile() {
           
           {/*Profile Container */}
           <div className="p-15">
-             <ProfilePictureEditor
-              currentProfilePicture={student.profile_picture_url}
-              studentName={student.name}
-              onSave={updateProfilePicture}
-            />
+            {/* Simple profile picture display */}
             <div className="flex flex-col items-center gap-5">
+              <div 
+                data-component="avatar" 
+                className="bg-amber-300 w-30 h-30 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-200"
+              >
+                {student.profile_picture_url ? (
+                  <Image
+                    src={student.profile_picture_url}
+                    alt={`${student.name}'s profile picture`}
+                    width={120}
+                    height={120}
+                    className="w-full h-full object-cover"
+                    sizes="120px"
+                  />
+                ) : (
+                  <span className="text-gray-800 font-semibold text-3xl">
+                    {student.name?.toUpperCase().trim()[0]}
+                  </span>
+                )}
+              </div>
               
               <span className="text-gray-800 font-medium text-2xl">{student.name}</span>
               <span className="text-gray-800 font-medium">Verification Status: {student.verification_status}</span>

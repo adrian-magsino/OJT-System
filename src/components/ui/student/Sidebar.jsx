@@ -97,19 +97,6 @@ export default function Sidebar() {
                 {(!isCollapsed || isMobile) && <span className="ms-3">FORM 2</span>}
               </Link>
             </li>
-            <li>
-              <Link 
-                href="#" 
-                className={linkClasses}
-                title={isCollapsed && !isMobile ? 'Page 3' : ''}
-                onClick={handleLinkClick}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                {(!isCollapsed || isMobile) && <span className="ms-3">PAGE 3</span>}
-              </Link>
-            </li>
           </ul>
         </div>
       </div>
