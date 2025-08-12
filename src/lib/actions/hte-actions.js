@@ -1,7 +1,7 @@
 // src/lib/actions/hte-actions.js
 'use server';
 
-import { deactivateHTE, getAllHTEs, getHTEs, getHTEById, getRecommendedHTEs } from "@/lib/services/hte-service";
+import { deactivateHTE, getAllHTEs, getHTEs, getHTEById, getRecommendedHTEs, createHTEWithWorkTasksAction } from "@/lib/services/hte-service";
 import { 
   getWorkTaskCategoriesService, 
   getHTEWithWorkTasksService, 
@@ -105,6 +105,20 @@ export async function getHTEWithWorkTasksAction(hteId) {
 export async function updateHTEWithWorkTasksAction(hteId, formData, selectedWorkTasks) {
   try {
     const data = await updateHTEWithWorkTasksService(hteId, formData, selectedWorkTasks)
+    return { success: true, data, error: null }
+  } catch (error) {
+    return { success: false, error: { message: error.message } }
+  }
+}
+
+export async function createHTEWithWorkTasksAction(formData, selectedWorkTasks) {
+  try {
+    const data = await createHTEWithWorkTasksService(formData, selectedWorkTasks)
+    
+    // Revalidate HTE pages
+    revalidatePath('/coordinator/hte')
+    revalidatePath('/student/hte')
+    
     return { success: true, data, error: null }
   } catch (error) {
     return { success: false, error: { message: error.message } }

@@ -185,3 +185,24 @@ export async function updateHTEWithWorkTasksService(hteId, formData, selectedWor
   
   return data
 }
+
+export async function createHTEWithWorkTasksService(formData, selectedWorkTasks) {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase.rpc('create_hte_with_work_tasks', {
+    hte_name: formData.name,
+    hte_nature_of_work: formData.nature_of_work,
+    hte_location: formData.location,
+    hte_contact_number: formData.contact_number || null,
+    hte_email: formData.email || null,
+    hte_links: formData.links || null,
+    hte_description: formData.description || null,
+    task_category_ids: selectedWorkTasks
+  })
+  
+  if (error) {
+    throw new Error(error.message || 'Failed to create HTE')
+  }
+  
+  return data
+}
