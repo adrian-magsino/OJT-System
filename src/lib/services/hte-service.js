@@ -4,147 +4,108 @@ export async function getAllHTEs() {
   const supabase = await createClient();
   
   const { data: htes, error } = await supabase
-    .from('hte_with_work_tasks')
-    .select(`
-      hte_id,
-      name,
-      nature_of_work,
-      location,
-      contact_number,
-      email,
-      website,
-      description,
-      work_tasks
-      `)
-      .eq('is_active', true)
-      .order('name');
+    .rpc('get_all_htes');
     
   if (error) {
     return { htes: null, error };
   }
-
-  return { htes, error: null};
-
+  return { htes, error: null };
 }
 
-//Fetching data with pagination
-export async function getHTEs(page = 1, limit= 10, searchQuery = '') {
+export async function getHTEs(page = 1, limit = 10, searchQuery = '') {
   const supabase = await createClient();
-
-  const from = (page - 1) * limit;
-  const to = from + limit - 1;
-
-  let query = supabase
-    .from('hte_with_work_tasks')
-    .select(`
-      hte_id,
-      name,
-      nature_of_work,
-      location,
-      contact_number,
-      email,
-      website,
-      description,
-      work_tasks
-      `, { count: 'exact' })
-      .eq('is_active', true)
+  
+  const { data: results, error } = await supabase
+    .rpc('get_htes_paginated', {
+      page_num: page,
+      page_limit: limit,
+      search_query: searchQuery || ''
+    });
     
-
-  if (searchQuery && searchQuery.trim()) {
-    query = query.or(`name.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%,nature_of_work.ilike.%${searchQuery}%`);
-  }
-  const { data: htes, error, count } = await query
-      .order('name')
-      .range(from, to);
-
   if (error) {
-    return { htes: null, error, totalCount: 0};
+    return { htes: null, error, totalCount: 0 };
   }
-
+  
+  // Extract total count from first row (all rows have the same total_count)
+  const totalCount = results && results.length > 0 ? results[0].total_count : 0;
+  
+  // Remove total_count from each row for cleaner data
+  const htes = results?.map(({ total_count, ...hte }) => hte) || [];
+  
   return {
     htes,
     error: null,
-    totalCount: count,
+    totalCount: parseInt(totalCount),
     currentPage: page,
-    totalPages: Math.ceil(count / limit),
-    hasNextPage: page < Math.ceil(count / limit),
+    totalPages: Math.ceil(totalCount / limit),
+    hasNextPage: page < Math.ceil(totalCount / limit),
     hasPreviousPage: page > 1
-  }
+  };
 }
 
 export async function getHTEById(hte_id) {
   const supabase = await createClient();
   
-  const { data: hte, error } = await supabase
-    .from('hte_with_work_tasks')
-    .select(`
-      hte_id,
-      name,
-      nature_of_work,
-      location,
-      contact_number,
-      email,
-      website,
-      description,
-      work_tasks
-      `)
-      .eq('hte_id', hte_id)
-      .eq('is_active', true)
-      .single();
+  const { data: results, error } = await supabase
+    .rpc('get_hte_by_id', {
+      hte_uuid: hte_id
+    });
     
   if (error) {
     return { hte: null, error };
   }
-
-  return { hte, error: null};
+  
+  // RPC returns an array, but we want single object
+  const hte = results && results.length > 0 ? results[0] : null;
+  
+  if (!hte) {
+    return { hte: null, error: { message: 'HTE not found' } };
+  }
+  
+  return { hte, error: null };
 }
 
 export async function getRecommendedHTEs(studentSpecializations, page = 1, limit = 10, searchQuery = '') {
   if (!studentSpecializations || studentSpecializations.length === 0) {
-    return { htes: [], error: null, totalCount: 0, currentPage: page, totalPages: 0, hasNextPage: false, hasPreviousPage: false };
+    return { 
+      htes: [], 
+      error: null, 
+      totalCount: 0, 
+      currentPage: page, 
+      totalPages: 0, 
+      hasNextPage: false, 
+      hasPreviousPage: false 
+    };
   }
-
+  
   const supabase = await createClient();
-  const from = (page - 1) * limit;
-  const to = from + limit - 1;
-
-  let query = supabase
-    .from('hte_with_work_tasks')
-    .select(`
-      hte_id,
-      name,
-      nature_of_work,
-      location,
-      contact_number,
-      email,
-      website,
-      description,
-      work_tasks
-    `, { count: 'exact' })
-    .eq('is_active', true)
-    .overlaps('work_tasks', studentSpecializations);
-
-  // Add search functionality for recommended HTEs too
-  if (searchQuery && searchQuery.trim()) {
-    query = query.or(`name.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%,nature_of_work.ilike.%${searchQuery}%`);
-  }
-
-  const { data: htes, error, count } = await query
-    .order('name')
-    .range(from, to);
-
+  
+  const { data: results, error } = await supabase
+    .rpc('get_recommended_htes', {
+      student_specializations: studentSpecializations,
+      page_num: page,
+      page_limit: limit,
+      search_query: searchQuery || ''
+    });
+    
   if (error) {
     console.error('Error fetching recommended HTEs:', error);
     return { htes: null, error, totalCount: 0 };
   }
-
+  
+  // Extract total count from first row (all rows have the same total_count)
+  const totalCount = results && results.length > 0 ? results[0].total_count : 0;
+  
+  // Remove total_count from each row for cleaner data
+  const htes = results?.map(({ total_count, ...hte }) => hte) || [];
+  
   return {
     htes,
     error: null,
-    totalCount: count,
+    totalCount: parseInt(totalCount),
     currentPage: page,
-    totalPages: Math.ceil(count / limit),
-    hasNextPage: page < Math.ceil(count / limit),
+    totalPages: Math.ceil(totalCount / limit),
+    hasNextPage: page < Math.ceil(totalCount / limit),
     hasPreviousPage: page > 1
   };
 }
