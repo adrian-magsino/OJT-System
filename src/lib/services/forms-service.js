@@ -177,4 +177,122 @@ export async function updateForm2(formData) {
   }
 }
 
+// Updated to use submission_id instead of student_id
+export async function updateForm2ById(submissionId, formData) {
+  const supabase = await createClient();
 
+  // Validate input data
+  const validationErrors = validateForm2Data(formData);
+  if (validationErrors.length > 0) {
+    return { success: false, error: { message: validationErrors.join(', ')}};
+  }
+
+  try {
+    // Call the correct RPC function name
+    const { data, error } = await supabase.rpc('update_form2_application_by_submission_id', {
+      p_submission_id: submissionId,
+      p_form_data: formData
+    });
+
+    if (error) {
+      console.error('RPC Error:', error);
+      throw error;
+    }
+
+    return {
+      success: true,
+      data,
+      message: 'Form updated successfully'
+    };
+  } catch (error) {
+    console.error('Form update error:', error);
+    return {
+      success: false,
+      error: { message: error.message || 'Failed to update form'}
+    };
+  }
+}
+
+// New service function using submission_id directly
+export async function getForm2SubmissionById(submissionId) {
+  const supabase = await createClient();
+
+  try {
+    const { data, error } = await supabase.rpc('get_form2_submission_by_id', {
+      p_submission_id: submissionId
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    // The RPC returns an array, but we expect a single record
+    const formData = data && data.length > 0 ? data[0] : null;
+
+    if (!formData) {
+      return { data: null, error: null, hasSubmission: false };
+    }
+
+    // Transform the flat RPC response into the nested structure expected by the client
+    const transformedData = {
+      submission_id: formData.submission_id,
+      submission_status: formData.submission_status,
+      submitted_at: formData.submitted_at,
+      updated_at: formData.updated_at,
+      reviewed_at: formData.reviewed_at,
+      reviewed_by_name: formData.reviewed_by_name,
+      moa_is_completed: formData.moa_is_completed,
+      rl_is_completed: formData.rl_is_completed,
+      
+      // Transform into nested structure for compatibility
+      student_training_info: {
+        student_name: formData.student_name,
+        student_number: formData.student_number,
+        student_email: formData.student_email,
+        student_contact_number: formData.student_contact_number,
+        parent_guardian_name: formData.parent_guardian_name,
+        parent_guardian_contact_number: formData.parent_guardian_contact_number,
+        parent_guardian_email: formData.parent_guardian_email
+      },
+      
+      student_profiles: {
+        program: formData.program
+      },
+      
+      hte_recommendation_info: {
+        company_name: formData.company_name,
+        company_address: formData.company_address,
+        company_contact_number: formData.company_contact_number,
+        company_email: formData.company_email,
+        representative_name: formData.representative_name,
+        representative_title: formData.representative_title,
+        representative_designation: formData.representative_designation
+      },
+      
+      hte_moa_info: {
+        main_signatory_name: formData.main_signatory_name,
+        main_signatory_title: formData.main_signatory_title,
+        main_signatory_designation: formData.main_signatory_designation,
+        first_witness_name: formData.first_witness_name,
+        first_witness_title: formData.first_witness_title,
+        first_witness_designation: formData.first_witness_designation,
+        second_witness_name: formData.second_witness_name,
+        second_witness_title: formData.second_witness_title,
+        second_witness_designation: formData.second_witness_designation
+      }
+    };
+
+    return { 
+      data: transformedData, 
+      error: null, 
+      hasSubmission: true 
+    };
+  } catch (error) {
+    console.error('Error fetching form submission:', error);
+    return { 
+      data: null, 
+      error: { message: error.message || 'Failed to fetch form submission' },
+      hasSubmission: false 
+    };
+  }
+}

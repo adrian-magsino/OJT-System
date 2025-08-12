@@ -4,13 +4,12 @@ import { fetchSubmissionById } from '@/lib/server/coordinator-submissions'
 import ViewForm2SubmissionClient from './ViewForm2SubmissionClient'
 
 export default async function ViewForm2Submission({ params }) {
-  const { id } = params
+  const { id } = await params
 
   let submission
 
   try {
     submission = await fetchSubmissionById(id)
-    console.log('Fetched submission:', submission)
   } catch (error) {
     console.error('Error fetching submission:', error)
     if (error.message?.includes('Access denied')) {
