@@ -1,3 +1,4 @@
+import { siteConfig } from "@/lib/config/site";
 
 export default function Footer() {
   return (
@@ -5,7 +6,7 @@ export default function Footer() {
       <div className="mx-auto w-full max-w-screen-xl">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 px-4 py-6">
           <div className="max-w-sm">
-            <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase">OJT SYSTEM</h2>
+            <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase">{siteConfig.name}</h2>
             <p>
               Lorem ipsum dolor sit amet consectetur adipiscing elit. Sit amet consectetur adipiscing elit quisque faucibus ex. Adipiscing elit quisque faucibus ex sapien vitae pellentesque.
             </p>
