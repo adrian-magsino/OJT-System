@@ -33,9 +33,16 @@ export default function CreateHTEClientComponent({ workTaskCategories, error: se
     const value = e.target.value;
     setFormData(prev => ({
       ...prev,
-      links: value.split(',').map(link => link.trim()).filter(link => link)
+      linksInput: value // Store raw input for display
     }));
   };
+
+  const getProcessedLinks = () => {
+    return formData.linksInput ? 
+      formData.linksInput.split(',').map(link => link.trim()).filter(link => link) : 
+      [];
+  };
+
 
   const handleWorkTaskToggle = (categoryId) => {
     setSelectedWorkTasks(prev => {
@@ -246,12 +253,24 @@ export default function CreateHTEClientComponent({ workTaskCategories, error: se
               type="text"
               id="links"
               name="links"
-              value={Array.isArray(formData.links) ? formData.links.join(', ') : ''}
+              value={formData.linksInput || ''}
               onChange={handleLinksChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="e.g., https://www.techcorp.com, https://linkedin.com/company/techcorp"
             />
             <p className="text-xs text-gray-500 mt-1">Separate multiple links with commas</p>
+            
+            {/* Preview processed links */}
+            {formData.linksInput && getProcessedLinks().length > 0 && (
+              <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
+                <strong>Links preview:</strong>
+                <ul className="mt-1 space-y-1">
+                  {getProcessedLinks().map((link, index) => (
+                    <li key={index} className="text-blue-600">• {link}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Description */}
