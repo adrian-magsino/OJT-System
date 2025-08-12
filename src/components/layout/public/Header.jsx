@@ -10,8 +10,22 @@ export default function Header() {
   return (
     <header className="w-full h-12 fixed bg-green-700 z-40">
       <nav className="mx-auto h-full flex items-center justify-between px-8">
-        <div>
-          <a href="/">WEBSITE LOGO</a>         
+        {/*CVSU LOGO */}
+        <div className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <div className="w-10 h-10 relative">
+              <Image 
+                src="/cvsu_logo.png"
+                alt="CVSU Logo"
+                fill
+                className="object-contain"
+                sizes="40px"
+              />
+            </div>
+            <span className="text-white font-semibold text-sm md:text-base whitespace-nowrap">
+              OJT SYSTEM
+            </span>
+          </a>         
         </div>
 
         {/* HEADER NAVIGATION */}

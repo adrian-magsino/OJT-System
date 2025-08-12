@@ -15,7 +15,6 @@ export async function getCurrentStudentProfile() {
     }
   }
 
-
   const supabase = await createClient();
 
   const { data: profileData, error: profileError } = await supabase
@@ -26,8 +25,7 @@ export async function getCurrentStudentProfile() {
       program,
       specializations,
       interests,
-      verification_status,
-      profile_picture_url
+      verification_status
     `)
     .eq("student_id", userData.user_id)
     .single()

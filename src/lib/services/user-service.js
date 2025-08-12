@@ -19,5 +19,12 @@ export async function getCurrentUser() {
     return { user: null, error: dbError }
   }
 
-  return { user: userData, error: null}
+  const profilePictureUrl = user.user_metadata?.avatar_url || null;
+
+  const enrichedUser = {
+    ...userData,
+    profile_picture_url: profilePictureUrl
+  }
+
+  return { user: enrichedUser, error: null}
 }
