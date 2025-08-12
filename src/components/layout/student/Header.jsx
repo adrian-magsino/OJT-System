@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import LogoutButton from '@/components/auth/LogoutButton'
+import { siteConfig } from "@/lib/config/site";
 
 export default function StudentHeader({ user, error, student }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -40,7 +41,7 @@ export default function StudentHeader({ user, error, student }) {
               />
             </div>
             <span className="text-white font-semibold text-sm md:text-base whitespace-nowrap">
-              OJT SYSTEM
+              {siteConfig.name}
             </span>
           </Link>         
         </div>

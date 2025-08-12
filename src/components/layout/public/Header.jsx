@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { siteConfig } from "@/lib/config/site";
 
 const routes = [
   {name: "Home", path: "#Home"},
@@ -23,7 +24,7 @@ export default function Header() {
               />
             </div>
             <span className="text-white font-semibold text-sm md:text-base whitespace-nowrap">
-              OJT SYSTEM
+              {siteConfig.name}
             </span>
           </a>         
         </div>
