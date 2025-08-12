@@ -109,3 +109,31 @@ export async function getRecommendedHTEs(studentSpecializations, page = 1, limit
     hasPreviousPage: page > 1
   };
 }
+
+export async function deactivateHTE(hte_id) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .rpc('deactivate_hte', {
+      hte_uuid: hte_id
+    });
+    
+  if (error) {
+    return { success: false, error: error.message };
+  }
+  
+  // The RPC returns a JSON object with success/error info
+  if (data.success) {
+    return { 
+      success: true, 
+      message: data.message,
+      data: data.data 
+    };
+  } else {
+    return { 
+      success: false, 
+      error: data.error.message,
+      code: data.error.code 
+    };
+  }
+}
