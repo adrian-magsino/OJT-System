@@ -2,6 +2,11 @@
 'use server';
 
 import { deactivateHTE, getAllHTEs, getHTEs, getHTEById, getRecommendedHTEs } from "@/lib/services/hte-service";
+import { 
+  getWorkTaskCategoriesService, 
+  getHTEWithWorkTasksService, 
+  updateHTEWithWorkTasksService 
+} from '@/lib/services/hte-service';
 import { revalidatePath } from "next/cache";
 
 export async function deactivateHTEAction(hteId) {
@@ -76,5 +81,32 @@ export async function getRecommendedHTEsAction(studentSpecializations, page = 1,
       error: { message: 'Failed to fetch recommended HTEs' },
       totalCount: 0
     };
+  }
+}
+
+export async function getWorkTaskCategoriesAction() {
+  try {
+    const categories = await getWorkTaskCategoriesService()
+    return { categories, error: null }
+  } catch (error) {
+    return { categories: null, error: { message: error.message } }
+  }
+}
+
+export async function getHTEWithWorkTasksAction(hteId) {
+  try {
+    const hteData = await getHTEWithWorkTasksService(hteId)
+    return { hteData, error: null }
+  } catch (error) {
+    return { hteData: null, error: { message: error.message } }
+  }
+}
+
+export async function updateHTEWithWorkTasksAction(hteId, formData, selectedWorkTasks) {
+  try {
+    const data = await updateHTEWithWorkTasksService(hteId, formData, selectedWorkTasks)
+    return { success: true, data, error: null }
+  } catch (error) {
+    return { success: false, error: { message: error.message } }
   }
 }

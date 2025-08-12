@@ -137,3 +137,51 @@ export async function deactivateHTE(hte_id) {
     };
   }
 }
+
+export async function getWorkTaskCategoriesService() {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase.rpc('get_work_task_categories')
+  
+  if (error) {
+    throw new Error(error.message || 'Failed to fetch work task categories')
+  }
+  
+  return data
+}
+
+export async function getHTEWithWorkTasksService(hteId) {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase.rpc('get_hte_with_work_tasks', {
+    hte_uuid: hteId
+  })
+  
+  if (error) {
+    throw new Error(error.message || 'Failed to fetch HTE data')
+  }
+  
+  return data
+}
+
+export async function updateHTEWithWorkTasksService(hteId, formData, selectedWorkTasks) {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase.rpc('update_hte_with_work_tasks', {
+    hte_uuid: hteId,
+    hte_name: formData.name,
+    hte_nature_of_work: formData.nature_of_work,
+    hte_location: formData.location,
+    hte_contact_number: formData.contact_number || null,
+    hte_email: formData.email || null,
+    hte_website: formData.website || null,
+    hte_description: formData.description || null,
+    task_category_ids: selectedWorkTasks
+  })
+  
+  if (error) {
+    throw new Error(error.message || 'Failed to update HTE')
+  }
+  
+  return data
+}
