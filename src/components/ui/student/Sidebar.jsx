@@ -83,7 +83,7 @@ export default function Sidebar() {
                 onClick={handleLinkClick}
               >
                 <Image src="/icons/panels-top-left.svg" width={20} height={20} alt="dashboard-icon"/>
-                {(!isCollapsed || isMobile) && <span className="ms-3">DASHBOARD</span>}
+                {(!isCollapsed || isMobile) && <span className="ms-3">HTE LIST</span>}
               </Link>
             </li>
             <li>

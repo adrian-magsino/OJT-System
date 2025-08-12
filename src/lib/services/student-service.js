@@ -24,7 +24,9 @@ export async function getCurrentStudentProfile() {
       student_number,
       program,
       specializations,
-      interests
+      interests,
+      verification_status,
+      profile_picture_url
     `)
     .eq("student_id", userData.user_id)
     .single()
@@ -40,7 +42,6 @@ export async function getCurrentStudentProfile() {
   };
 
   return { student, error: null};
-
 }
 
 export async function updateStudentProfile(updates) {
@@ -69,5 +70,4 @@ export async function updateStudentProfile(updates) {
   }
 
   return {error: null};
-
 }

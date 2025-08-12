@@ -50,7 +50,7 @@ export default function InterestsEditor( {initialInterests = [], onSave }) {
         {interests.map((interest_, index) => (
           <div
             key={index}
-            className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full border"
+            className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded-full border"
           >
             <span>{interest_}</span>
             {isEditing && (
@@ -98,7 +98,7 @@ export default function InterestsEditor( {initialInterests = [], onSave }) {
         {!isEditing? (
           <button
             onClick={() => setIsEditing(true)}
-            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+            className="px-3 py-1 bg-yellow-300 text-gray-700 text-sm rounded hover:bg-yellow-400"
           >
             Edit
           </button>

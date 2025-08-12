@@ -41,7 +41,7 @@ export default function HteCard({ hte_data, isSelected}) {
     <>
       <Link
         href={createDesktopUrl()}
-        className={`hidden lg:block flex flex-row border-2 w-full min-h-30 grow p-3 cursor-pointer transition-colors hover:bg-gray-50
+        className={`hidden lg:block flex flex-row border-1 w-full min-h-30 grow p-3 cursor-pointer transition-colors hover:bg-gray-50
           ${
             isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
           }`}
@@ -52,7 +52,7 @@ export default function HteCard({ hte_data, isSelected}) {
       {/* Navigation using mobile devices */}
       <Link
         href={createMobileUrl()}
-        className="block lg:hidden flex flex-row border-2 w-full min-h-30 grow p-3 cursor-pointer transition-colors hover:bg-gray-50 border-gray-200"
+        className="block lg:hidden flex flex-row border-1 w-full min-h-30 grow p-3 cursor-pointer transition-colors hover:bg-gray-50 border-gray-200"
       >
           <HteCardContent hte_data={hte_data}/>
       </Link>

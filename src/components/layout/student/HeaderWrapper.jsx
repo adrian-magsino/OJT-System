@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/lib/services/user-service";
+import { getCurrentStudentProfile } from "@/lib/services/student-service";
 import StudentHeader from "./Header";
 
 export default async function StudentHeaderWrapper() {
@@ -6,7 +7,17 @@ export default async function StudentHeaderWrapper() {
 
   if (error) {
     console.error("Error fetching user:", error);
-  } 
+    return <StudentHeader user={user} error={error} student={null} />
+  }
 
-  return <StudentHeader user={user} error={error}/>
+  // If user is a student, fetch their profile data including profile picture
+  let student = null;
+  if (user && user.role === "student") {
+    const { student: studentData, error: studentError } = await getCurrentStudentProfile();
+    if (!studentError) {
+      student = studentData;
+    }
+  }
+
+  return <StudentHeader user={user} error={error} student={student} />
 }

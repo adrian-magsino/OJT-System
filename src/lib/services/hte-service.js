@@ -28,13 +28,13 @@ export async function getAllHTEs() {
 }
 
 //Fetching data with pagination
-export async function getHTEs(page = 1, limit= 10) {
+export async function getHTEs(page = 1, limit= 10, searchQuery = '') {
   const supabase = await createClient();
 
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  const { data: htes, error, count } = await supabase
+  let query = supabase
     .from('hte_with_work_tasks')
     .select(`
       hte_id,
@@ -48,6 +48,12 @@ export async function getHTEs(page = 1, limit= 10) {
       work_tasks
       `, { count: 'exact' })
       .eq('is_active', true)
+    
+
+  if (searchQuery && searchQuery.trim()) {
+    query = query.or(`name.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%,nature_of_work.ilike.%${searchQuery}%`);
+  }
+  const { data: htes, error, count } = await query
       .order('name')
       .range(from, to);
 
@@ -93,7 +99,7 @@ export async function getHTEById(hte_id) {
   return { hte, error: null};
 }
 
-export async function getRecommendedHTEs(studentSpecializations, page = 1, limit = 10) {
+export async function getRecommendedHTEs(studentSpecializations, page = 1, limit = 10, searchQuery = '') {
   if (!studentSpecializations || studentSpecializations.length === 0) {
     return { htes: [], error: null, totalCount: 0, currentPage: page, totalPages: 0, hasNextPage: false, hasPreviousPage: false };
   }
@@ -102,8 +108,7 @@ export async function getRecommendedHTEs(studentSpecializations, page = 1, limit
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  // Get HTEs that have work tasks matching student specializations
-  const { data: htes, error, count } = await supabase
+  let query = supabase
     .from('hte_with_work_tasks')
     .select(`
       hte_id,
@@ -117,7 +122,14 @@ export async function getRecommendedHTEs(studentSpecializations, page = 1, limit
       work_tasks
     `, { count: 'exact' })
     .eq('is_active', true)
-    .overlaps('work_tasks', studentSpecializations)
+    .overlaps('work_tasks', studentSpecializations);
+
+  // Add search functionality for recommended HTEs too
+  if (searchQuery && searchQuery.trim()) {
+    query = query.or(`name.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%,nature_of_work.ilike.%${searchQuery}%`);
+  }
+
+  const { data: htes, error, count } = await query
     .order('name')
     .range(from, to);
 
