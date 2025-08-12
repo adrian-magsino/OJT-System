@@ -74,8 +74,13 @@ export default function ViewHTEPage() {
   };
 
   const handleBack = () => {
-    router.push('/coordinator/hte');
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/coordinator/hte');
+    }
   };
+
 
   if (loading) {
     return (

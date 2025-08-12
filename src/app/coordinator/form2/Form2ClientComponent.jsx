@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
   fetchSubmissions as fetchSubmissionsAction,
@@ -10,12 +11,13 @@ import {
 
 export default function Forms2ClientComponent({ initialSubmissions, user }) {
   const supabase = createClient()
+  const router = useRouter()
   const [submissions, setSubmissions] = useState(initialSubmissions)
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
 
-  const fetchSubmissions = async () => {
+  const loadSubmissions = async () => {
     setLoading(true)
     try {
       const data = await fetchSubmissionsAction()
@@ -27,10 +29,10 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
     }
   }
 
-  const reviewSubmission = async (submissionId, status) => {
+  const handleReviewSubmission = async (submissionId, status) => {
     try {
       await reviewSubmissionAction(submissionId, status)
-      await fetchSubmissions()
+      await loadSubmissions()
       alert(`Submission ${status} successfully!`)
     } catch (error) {
       console.error('Error reviewing submission:', error)
@@ -38,33 +40,22 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
     }
   }
 
-  const generateDocument = async (submissionId, documentType) => {
-    try {
-      await generateDocumentAction(submissionId, documentType)
-      await fetchSubmissions()
-      alert(`${documentType.toUpperCase()} generated successfully!`)
-    } catch (error) {
-      console.error('Error generating document:', error)
-      alert('Error generating document')
-    }
-  }
-
   useEffect(() => {
     const channel = supabase
       .channel('form2_submissions')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'student_form2_submissions'
-      }, () => {
-        fetchSubmissions()
-      })
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'student_form2_submissions' },
+        (payload) => {
+          loadSubmissions()
+        }
+      )
       .subscribe()
 
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [supabase])
+  }, [])
 
   const filteredSubmissions = submissions.filter(submission => {
     const matchesFilter = filter === 'all' || submission.submission_status === filter
@@ -78,26 +69,46 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-gray-800">Form 2 Submissions</h1>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="px-3 py-2 border rounded-md"
-          >
-            <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
-          <input
-            type="text"
-            placeholder="Search by name, number, or company"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-3 py-2 border rounded-md w-full sm:w-64"
-          />
+
+        <div className="flex flex-col sm:flex-row items-end gap-4 w-full lg:w-auto">
+          {/* Filter and Search Controls */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="px-3 py-2 border rounded-md"
+            >
+              <option value="all">All</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Search by name, number, or company"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-2 border rounded-md w-full sm:w-64"
+            />
+          </div>
+
+          {/* Generate Document Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => router.push('/coordinator/form2/generate-moa')}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
+            >
+              Generate MOA
+            </button>
+            <button
+              onClick={() => router.push('/coordinator/form2/generate-rl')}
+              className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
+            >
+              Generate RL
+            </button>
+          </div>
         </div>
       </div>
 
@@ -182,43 +193,25 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
                         </td>
 
                         {/* Actions */}
-                        <td className="px-6 py-4 space-y-2 text-sm">
+                        <td className="px-6 py-4 text-sm">
                           <div className="flex gap-2">
                             <button
-                              onClick={() => reviewSubmission(submission.submission_id, 'approved')}
-                              className="bg-green-100 text-green-800 hover:bg-green-200 px-2 py-1 rounded text-xs"
+                              onClick={() => router.push(`/coordinator/form2/view/${submission.submission_id}`)}
+                              className="bg-blue-100 text-blue-800 hover:bg-blue-200 px-3 py-1 rounded text-xs"
+                            >
+                              View
+                            </button>
+                            <button
+                              onClick={() => handleReviewSubmission(submission.submission_id, 'approved')}
+                              className="bg-green-100 text-green-800 hover:bg-green-200 px-3 py-1 rounded text-xs"
                             >
                               Approve
                             </button>
                             <button
-                              onClick={() => reviewSubmission(submission.submission_id, 'rejected')}
-                              className="bg-red-100 text-red-800 hover:bg-red-200 px-2 py-1 rounded text-xs"
+                              onClick={() => handleReviewSubmission(submission.submission_id, 'rejected')}
+                              className="bg-red-100 text-red-800 hover:bg-red-200 px-3 py-1 rounded text-xs"
                             >
                               Reject
-                            </button>
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => generateDocument(submission.submission_id, 'moa')}
-                              disabled={submission.submission_status !== 'approved' || submission.moa_is_completed}
-                              className={`px-2 py-1 rounded text-xs text-white flex-1 ${
-                                submission.submission_status !== 'approved' || submission.moa_is_completed
-                                  ? 'bg-gray-400 cursor-not-allowed'
-                                  : 'bg-blue-500 hover:bg-blue-600'
-                              }`}
-                            >
-                              Generate MOA
-                            </button>
-                            <button
-                              onClick={() => generateDocument(submission.submission_id, 'recommendation_letter')}
-                              disabled={submission.submission_status !== 'approved' || submission.rl_is_completed}
-                              className={`px-2 py-1 rounded text-xs text-white flex-1 ${
-                                submission.submission_status !== 'approved' || submission.rl_is_completed
-                                  ? 'bg-gray-400 cursor-not-allowed'
-                                  : 'bg-purple-500 hover:bg-purple-600'
-                              }`}
-                            >
-                              Generate RL
                             </button>
                           </div>
                         </td>
