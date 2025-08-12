@@ -1,7 +1,15 @@
 // src/lib/actions/hte-actions.js
 'use server';
 
-import { deactivateHTE, getAllHTEs, getHTEs, getHTEById, getRecommendedHTEs, createHTEWithWorkTasksAction } from "@/lib/services/hte-service";
+import { 
+  deactivateHTE, 
+  getAllHTEs, 
+  getHTEs, 
+  getHTEById, 
+  getRecommendedHTEs, 
+  createHTEWithWorkTasksService  // <- Changed from createHTEWithWorkTasksAction to createHTEWithWorkTasksService
+} from "@/lib/services/hte-service";
+
 import { 
   getWorkTaskCategoriesService, 
   getHTEWithWorkTasksService, 
