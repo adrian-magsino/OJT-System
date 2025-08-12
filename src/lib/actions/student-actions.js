@@ -40,7 +40,7 @@ export async function updateProfilePicture(pfpData) {
     throw new Error('User not authenticated');
   }
 
-  if (userData.role !== "student") {
+  if (userData.role !== "student" && userData.role !== "admin") {
     throw new Error('User is not a student');
   }
 
