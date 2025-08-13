@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
-  fetchSubmissions as fetchSubmissionsAction,
-  reviewSubmission as reviewSubmissionAction,
-  generateDocument as generateDocumentAction
+  fetchSubmissionsAction,
+  reviewSubmissionAction,
+  generateDocumentAction
 } from '@/lib/actions/coordinator-actions'
 
 export default function Forms2ClientComponent({ initialSubmissions, user }) {
@@ -20,10 +20,16 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
   const loadSubmissions = async () => {
     setLoading(true)
     try {
-      const data = await fetchSubmissionsAction()
-      setSubmissions(data || [])
+      const result = await fetchSubmissionsAction()
+      if (result.success) {
+        setSubmissions(result.data)
+      } else {
+        console.error('Error fetching submissions:', result.error)
+        setSubmissions([])
+      }
     } catch (error) {
       console.error('Error fetching submissions:', error)
+      setSubmissions([])
     } finally {
       setLoading(false)
     }
@@ -31,9 +37,13 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
 
   const handleReviewSubmission = async (submissionId, status) => {
     try {
-      await reviewSubmissionAction(submissionId, status)
-      await loadSubmissions()
-      alert(`Submission ${status} successfully!`)
+      const result = await reviewSubmissionAction(submissionId, status)
+      if (result.success) {
+        await loadSubmissions()
+        alert(result.message || `Submission ${status} successfully!`)
+      } else {
+        alert(result.error?.message || 'Error updating submission status')
+      }
     } catch (error) {
       console.error('Error reviewing submission:', error)
       alert('Error updating submission status')
