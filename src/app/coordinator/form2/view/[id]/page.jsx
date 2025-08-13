@@ -1,15 +1,15 @@
 // app/(dashboard)/coordinator/form2/view/[id]/page.jsx
 import { notFound } from 'next/navigation'
-import { fetchSubmissionById } from '@/lib/server/coordinator-submissions'
+import { getForm2SubmissionByIdAction } from '@/lib/actions/form-actions'
 import ViewForm2SubmissionClient from './ViewForm2SubmissionClient'
 
 export default async function ViewForm2Submission({ params }) {
   const { id } = await params
 
-  let submission
+  let result
 
   try {
-    submission = await fetchSubmissionById(id)
+    result = await getForm2SubmissionByIdAction(id)
   } catch (error) {
     console.error('Error fetching submission:', error)
     if (error.message?.includes('Access denied')) {
@@ -24,7 +24,21 @@ export default async function ViewForm2Submission({ params }) {
     notFound()
   }
 
-  if (!submission) {
+  if (result.error) {
+    if (result.error.message?.includes('Access denied')) {
+      return (
+        <div className="flex min-h-[50dvh] flex-col items-center justify-center space-y-3 text-center">
+          <h2 className="text-xl font-semibold text-muted-foreground">
+            You do not have access to this page.
+          </h2>
+        </div>
+      )
+    }
+    console.error('Error fetching submission:', result.error)
+    notFound()
+  }
+
+  if (!result.hasSubmission || !result.data) {
     return (
       <div className="flex min-h-[50dvh] flex-col items-center justify-center space-y-3 text-center">
         <h2 className="text-xl font-semibold text-muted-foreground">
@@ -34,5 +48,5 @@ export default async function ViewForm2Submission({ params }) {
     )
   }
 
-  return <ViewForm2SubmissionClient submission={submission} />
+  return <ViewForm2SubmissionClient submission={result.data} />
 }
