@@ -104,6 +104,40 @@ const CompanyInformationSection = ({ hte }) => (
           {hte.is_active ? 'Active' : 'Inactive'}
         </span>
       </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-500 mb-1">Person-in-charge</label>
+        <p className="text-gray-900">
+          {hte.person_in_charge || <span className="text-gray-400 italic">Not provided</span>}
+        </p>
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium text-gray-500 mb-1">Designation</label>
+        <p className="text-gray-900">
+          {hte.designation || <span className="text-gray-400 italic">Not provided</span>}
+        </p>
+      </div>
+
+      <div className="md:col-span-2">
+        <label className="block text-sm font-medium text-gray-500 mb-1">Work Setup</label>
+        <div className="text-gray-900">
+          {hte.work_setup && hte.work_setup.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {hte.work_setup.map((setup, index) => (
+                <span 
+                  key={index}
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                >
+                  {setup.charAt(0).toUpperCase() + setup.slice(1)}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <span className="text-gray-400 italic">Not specified</span>
+          )}
+        </div>
+      </div>
     </div>
   </div>
 );

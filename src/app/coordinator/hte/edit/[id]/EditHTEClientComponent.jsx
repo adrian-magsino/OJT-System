@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateHTEWithWorkTasksAction } from '@/lib/actions/hte-actions';
 
-const BasicInfoForm = ({ formData, handleInputChange }) => (
+const BasicInfoForm = ({ formData, handleInputChange, handleWorkSetupChange }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     {/* Company Name */}
     <div className="md:col-span-2">
@@ -103,6 +103,60 @@ const BasicInfoForm = ({ formData, handleInputChange }) => (
         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         placeholder="Brief description of the company, culture, or additional information..."
       />
+    </div>
+
+    {/* Person-in-charge */}
+    <div className="md:col-span-2">
+      <label htmlFor="person_in_charge" className="block text-sm font-medium text-gray-700 mb-2">
+        Person-in-charge
+      </label>
+      <input
+        type="text"
+        id="person_in_charge"
+        name="person_in_charge"
+        value={formData.person_in_charge}
+        onChange={handleInputChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="The Person-in-charge of the HTE"
+      />
+    </div>
+
+    {/* Designation */}
+    <div className="md:col-span-2">
+      <label htmlFor="designation" className="block text-sm font-medium text-gray-700 mb-2">
+        Designation
+      </label>
+      <input
+        type="text"
+        id="designation"
+        name="designation"
+        value={formData.designation}
+        onChange={handleInputChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="Designation/Position of the Person-in-charge"
+      />
+    </div>
+
+    {/* Work Setup */}
+    <div className='md:col-span-2'>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Work Setup
+      </label>
+      <div className="flex flex-col sm:flex-row gap-4">
+        {['onsite', 'remote', 'hybrid'].map((setupType) => (
+          <label key={setupType} className="flex items-center">
+            <input 
+              type="checkbox"
+              checked={formData.work_setup.includes(setupType)}
+              onChange={() => handleWorkSetupChange(setupType)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <span className="ml-2 text-sm text-gray-700">
+              {setupType.charAt(0).toUpperCase() + setupType.slice(1)}
+            </span>
+          </label>
+        ))}
+      </div>
     </div>
   </div>
 );
@@ -232,7 +286,10 @@ export default function EditHTEClientComponent({
     contact_number: initialFormData?.contact_number || '',
     email: initialFormData?.email || '',
     links: processInitialLinks(initialFormData),
-    description: initialFormData?.description || ''
+    description: initialFormData?.description || '',
+    person_in_charge: initialFormData?.person_in_charge || '',
+    designation: initialFormData?.designation || '',
+    work_setup: initialFormData?.work_setup || []
   });
 
   const [selectedWorkTasks, setSelectedWorkTasks] = useState(initialWorkTasks || []);
@@ -246,6 +303,15 @@ export default function EditHTEClientComponent({
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleWorkSetupChange = (setupType) => {
+    setFormData(prev => ({
+      ...prev,
+      work_setup: prev.work_setup.includes(setupType)
+        ? prev.work_setup.filter(item => item !== setupType)
+        : [...prev.work_setup, setupType]
     }));
   };
 
@@ -395,7 +461,11 @@ export default function EditHTEClientComponent({
       <ErrorDisplay error={error} />
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
-        <BasicInfoForm formData={formData} handleInputChange={handleInputChange} />
+        <BasicInfoForm 
+          formData={formData} 
+          handleInputChange={handleInputChange}
+          handleWorkSetupChange={handleWorkSetupChange}
+        />
 
         {/* Links Section */}
         <LinksManager

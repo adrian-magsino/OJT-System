@@ -190,7 +190,10 @@ export async function updateHTEWithWorkTasksService(hteId, formData, selectedWor
     hte_email: formData.email || null,
     hte_links: formData.links || null, // Changed from website to links
     hte_description: formData.description || null,
-    task_category_ids: selectedWorkTasks
+    task_category_ids: selectedWorkTasks,
+    hte_person_in_charge : formData.person_in_charge || null,
+    hte_designation: formData.designation || null,
+    hte_work_setup: formData.work_setup || null
   })
   
   if (error) {

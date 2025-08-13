@@ -45,7 +45,10 @@ export default async function EditHTEPage({ params }) {
       contact_number: hteData.contact_number || '',
       email: hteData.email || '',
       links: hteData.links || [], // Changed from website to links (array)
-      description: hteData.description || ''
+      description: hteData.description || '',
+      person_in_charge: hteData.person_in_charge || '',
+      designation: hteData.designation || '',
+      work_setup: hteData.work_setup || []
     }
     
     return (
