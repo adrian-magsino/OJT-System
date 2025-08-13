@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import {
-  fetchSubmissions as fetchSubmissionsAction,
-  generateDocument as generateDocumentAction
+  fetchSubmissionsAction,
+  generateDocumentAction  // Add this import
 } from '@/lib/actions/coordinator-actions'
 
 export default function GenerateRLPage({ initialSubmissions }) {
@@ -18,7 +18,7 @@ export default function GenerateRLPage({ initialSubmissions }) {
   
   // Filter states
   const [statusFilter, setStatusFilter] = useState('approved')
-  const [rlFilter, setRlFilter] = useState('not_generated') // Default to show only non-generated RLs
+  const [rlFilter, setRlFilter] = useState('not_generated')
   const [searchTerm, setSearchTerm] = useState('')
   
   // Selection states
@@ -28,10 +28,17 @@ export default function GenerateRLPage({ initialSubmissions }) {
   const fetchSubmissions = async () => {
     setLoading(true)
     try {
-      const data = await fetchSubmissionsAction()
-      setSubmissions(data || [])
+      const result = await fetchSubmissionsAction()  // This returns { success, data, error }
+      
+      if (result.success) {
+        setSubmissions(result.data || [])  // Use result.data instead of result
+      } else {
+        console.error('Error fetching submissions:', result.error)
+        setSubmissions([])
+      }
     } catch (error) {
       console.error('Error fetching submissions:', error)
+      setSubmissions([])
     } finally {
       setLoading(false)
     }
@@ -59,18 +66,18 @@ export default function GenerateRLPage({ initialSubmissions }) {
   }, [supabase])
 
   // Filter submissions based on criteria
-  const filteredSubmissions = submissions.filter(submission => {
+  const filteredSubmissions = Array.isArray(submissions) ? submissions.filter(submission => {
     const matchesStatus = statusFilter === 'all' || submission.submission_status === statusFilter
     const matchesRL = rlFilter === 'all' || 
       (rlFilter === 'generated' && submission.rl_is_completed) ||
       (rlFilter === 'not_generated' && !submission.rl_is_completed)
     const matchesSearch =
-      submission.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      submission.student_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      submission.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+      submission.student_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      submission.student_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      submission.company_name?.toLowerCase().includes(searchTerm.toLowerCase())
 
     return matchesStatus && matchesRL && matchesSearch
-  })
+  }) : []
 
   // Handle individual checkbox selection
   const handleSubmissionSelect = (submissionId) => {
@@ -120,8 +127,13 @@ export default function GenerateRLPage({ initialSubmissions }) {
 
       for (const submissionId of selectedArray) {
         try {
-          await generateDocumentAction(submissionId, 'recommendation_letter')
-          successCount++
+          const result = await generateDocumentAction(submissionId, 'recommendation_letter')
+          if (result.success) {
+            successCount++
+          } else {
+            console.error(`Error generating RL for submission ${submissionId}:`, result.error)
+            errorCount++
+          }
         } catch (error) {
           console.error(`Error generating RL for submission ${submissionId}:`, error)
           errorCount++

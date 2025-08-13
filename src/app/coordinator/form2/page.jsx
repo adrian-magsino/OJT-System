@@ -1,6 +1,6 @@
-// src/app/coordinator/form2/page.jsx
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { checkCoordinatorStatusAction, fetchSubmissionsAction } from '@/lib/actions/coordinator-actions'
 import Forms2ClientComponent from './Form2ClientComponent'
 
 export default async function Forms2Page() {
@@ -13,25 +13,24 @@ export default async function Forms2Page() {
     redirect('/login')
   }
 
-  // Check if user is coordinator
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('role')
-    .eq('user_id', user.id)
-    .single()
-
-  if (!userData || !['admin', 'ojt_coordinator'].includes(userData.role)) {
+  // Check if user is coordinator using the RPC function
+  const coordinatorCheck = await checkCoordinatorStatusAction()
+  
+  if (!coordinatorCheck.success) {
+    redirect('/unauthorized')
+  }
+  
+  if (!coordinatorCheck.isCoordinator) {
     redirect('/unauthorized')
   }
 
-  // Fetch initial data on server side (optional, for better performance)
-  const { data: initialSubmissions, error: submissionsError } = await supabase
-    .rpc('get_form2_submissions_with_details')
+  // Fetch initial data using actions
+  const submissionsResult = await fetchSubmissionsAction()
 
   return (
     <div>
       <Forms2ClientComponent 
-        initialSubmissions={initialSubmissions || []} 
+        initialSubmissions={submissionsResult.success ? submissionsResult.data : []} 
         user={user}
       />
     </div>

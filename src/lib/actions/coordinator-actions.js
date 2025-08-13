@@ -1,30 +1,73 @@
-// src/lib/actions/form2/coordinator-actions.js
-'use client'
+'use server'
 
-import { createClient } from '@/lib/supabase/client'
+import { 
+  getForm2Submissions, 
+  reviewForm2Submission, 
+  generateDocument,
+  checkIsCoordinator
+} from '@/lib/services/coordinator-service'
+import { revalidatePath } from 'next/cache'
 
-const supabase = createClient()
-
-export const fetchSubmissions = async () => {
-  const { data, error } = await supabase.rpc('get_form2_submissions_with_details')
-  if (error) throw error
-  return data
+export async function checkCoordinatorStatusAction() {
+  try {
+    const result = await checkIsCoordinator()
+    return result
+  } catch (error) {
+    console.error('Server action error:', error)
+    return {
+      success: false,
+      isCoordinator: false,
+      error: { message: 'Failed to check coordinator status' }
+    }
+  }
 }
 
-export const reviewSubmission = async (submissionId, status) => {
-  const { error } = await supabase.rpc('review_form2_submission', {
-    p_submission_id: submissionId,
-    p_status: status,
-  })
-  if (error) throw error
+export async function fetchSubmissionsAction() {
+  try {
+    const result = await getForm2Submissions()
+    return result
+  } catch (error) {
+    console.error('Server action error:', error)
+    return {
+      success: false,
+      data: [],
+      error: { message: 'Failed to fetch submissions' }
+    }
+  }
 }
 
-export const generateDocument = async (submissionId, documentType) => {
-  const fileName = `${documentType}_${submissionId}_${Date.now()}.pdf`
-  const { error } = await supabase.rpc('mark_document_generated', {
-    p_submission_id: submissionId,
-    p_document_type: documentType,
-    p_file_name: fileName,
-  })
-  if (error) throw error
+export async function reviewSubmissionAction(submissionId, status) {
+  try {
+    const result = await reviewForm2Submission(submissionId, status)
+    
+    if (result.success) {
+      revalidatePath('/coordinator/form2')
+    }
+    
+    return result
+  } catch (error) {
+    console.error('Server action error:', error)
+    return {
+      success: false,
+      error: { message: 'Failed to review submission' }
+    }
+  }
+}
+
+export async function generateDocumentAction(submissionId, documentType) {
+  try {
+    const result = await generateDocument(submissionId, documentType)
+    
+    if (result.success) {
+      revalidatePath('/coordinator/form2')
+    }
+    
+    return result
+  } catch (error) {
+    console.error('Server action error:', error)
+    return {
+      success: false,
+      error: { message: 'Failed to generate document' }
+    }
+  }
 }
