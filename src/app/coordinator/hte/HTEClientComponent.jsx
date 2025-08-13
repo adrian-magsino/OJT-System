@@ -1,241 +1,244 @@
-// src/app/coordinator/hte/HTEClientComponent.jsx (Client Component)
 'use client';
 
 import { useState } from 'react';
-import { deactivateHTEAction, getAllHTEsAction } from '@/lib/actions/hte-actions';
+import { deactivateHTEAction, reactivateHTEAction } from '@/lib/actions/hte-actions';
 import { useRouter } from 'next/navigation';
 
-export default function HTEClientComponent({ initialHTEs, initialError }) {
-  const [htes, setHTEs] = useState(initialHTEs);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(initialError);
+export default function HTEClientComponent({ initialHTEs, error: serverError }) {
+  const [allHTEs] = useState(initialHTEs || []); // Store all HTEs (never changes)
+  const [error, setError] = useState(serverError);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [actionLoading, setActionLoading] = useState(null); // Track which HTE is being acted upon
   const router = useRouter();
 
-  const fetchHTEs = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const { htes: data, error: serviceError } = await getAllHTEsAction();
-      
-      if (serviceError) throw serviceError;
-      
-      setHTEs(data || []);
-    } catch (error) {
-      console.error('Error fetching HTEs:', error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
+  // Client-side filtering - instant and smooth
+  const filteredHTEs = allHTEs.filter(hte => {
+    if (statusFilter === 'active') return hte.is_active;
+    if (statusFilter === 'inactive') return !hte.is_active;
+    return true; // 'all'
+  });
+
+  // Count for each filter
+  const counts = {
+    all: allHTEs.length,
+    active: allHTEs.filter(h => h.is_active).length,
+    inactive: allHTEs.filter(h => !h.is_active).length
   };
 
   const handleDeactivate = async (hteId, hteName) => {
     if (!confirm(`Are you sure you want to deactivate "${hteName}"?`)) return;
     
+    setActionLoading(hteId);
     try {
-      setLoading(true);
-      
       const result = await deactivateHTEAction(hteId);
-      
-      if (!result.success) {
-        throw new Error(result.error.message);
+      if (result.success) {
+        // Optimistic update - immediately update the UI
+        const updatedHTEs = allHTEs.map(hte => 
+          hte.hte_id === hteId ? { ...hte, is_active: false } : hte
+        );
+        // Since allHTEs is from useState with initial value, we need to refresh the page
+        // or use a different state management approach
+        window.location.reload(); // Simple approach for now
+      } else {
+        alert(`Failed to deactivate HTE: ${result.error.message}`);
       }
-      
-      // Refresh the list
-      await fetchHTEs();
-      alert(result.message || 'HTE deactivated successfully');
     } catch (error) {
-      console.error('Error deactivating HTE:', error);
-      alert(`Failed to deactivate HTE: ${error.message}`);
+      alert(`Error: ${error.message}`);
     } finally {
-      setLoading(false);
+      setActionLoading(null);
     }
   };
 
-  // Show loading state during refetch
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg">Loading HTEs...</div>
-        </div>
-      </div>
-    );
-  }
+  const handleReactivate = async (hteId, hteName) => {
+    if (!confirm(`Are you sure you want to reactivate "${hteName}"?`)) return;
+    
+    setActionLoading(hteId);
+    try {
+      const result = await reactivateHTEAction(hteId);
+      if (result.success) {
+        // Optimistic update
+        window.location.reload(); // Simple approach for now
+      } else {
+        alert(`Failed to reactivate HTE: ${result.error.message}`);
+      }
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
-  // Show error state
-  if (error) {
+  const handleEdit = (hteId) => {
+    router.push(`/coordinator/hte/edit/${hteId}`);
+  };
+
+  const handleView = (hteId) => {
+    router.push(`/coordinator/hte/view/${hteId}`);
+  };
+
+  const handleCreate = () => {
+    router.push('/coordinator/hte/create');
+  };
+
+  if (error && !allHTEs.length) {
     return (
       <div className="container mx-auto p-6">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           <strong>Error:</strong> {error}
         </div>
-        <button 
-          onClick={fetchHTEs}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Try Again
-        </button>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto p-6">
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">HTE Management</h1>
-        <button 
-          onClick={() => router.push('/coordinator/hte/create')}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Host Training Establishments</h1>
+          <p className="text-gray-600 mt-1">Manage and view all HTEs in the system</p>
+        </div>
+        <button
+          onClick={handleCreate}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
         >
-          + Add New HTE
+          Add New HTE
         </button>
       </div>
-      
-      {htes.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-gray-500 text-lg mb-4">No HTEs found</div>
-          <p className="text-gray-400 mb-6">Get started by creating your first HTE!</p>
-          <button 
-            onClick={() => router.push('/coordinator/hte/create')}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+
+      {/* Status Filter - Instant switching */}
+      <div className="mb-6">
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setStatusFilter('all')}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              statusFilter === 'all'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
           >
-            Create First HTE
+            All HTEs ({counts.all})
+          </button>
+          <button
+            onClick={() => setStatusFilter('active')}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              statusFilter === 'active'
+                ? 'bg-green-500 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Active ({counts.active})
+          </button>
+          <button
+            onClick={() => setStatusFilter('inactive')}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              statusFilter === 'inactive'
+                ? 'bg-red-500 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Inactive ({counts.inactive})
           </button>
         </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Company
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Nature of Work
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Location
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Work Tasks
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {htes.map(hte => (
-                  <tr key={hte.hte_id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        {/* Display profile picture if available */}
-                        {hte.profile_picture && (
-                          <div className="flex-shrink-0 h-10 w-10 mr-3">
-                            <img 
-                              className="h-10 w-10 rounded-full object-cover" 
-                              src={hte.profile_picture} 
-                              alt={`${hte.name} logo`}
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                              }}
-                            />
-                          </div>
-                        )}
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {hte.name}
-                          </div>
-                          {/* Display links array */}
-                          {hte.links && hte.links.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-1">
-                              {hte.links.map((link, index) => (
-                                <a 
-                                  key={index}
-                                  href={link} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer" 
-                                  className="text-xs text-blue-600 hover:underline"
-                                >
-                                  Link {index + 1}
-                                </a>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {hte.nature_of_work}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {hte.location}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1">
-                        {hte.work_tasks && hte.work_tasks.length > 0 ? (
-                          hte.work_tasks.map((task, index) => (
-                            <span 
-                              key={index}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                            >
-                              {task}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-sm text-gray-400 italic">No tasks assigned</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      <div>
-                        {hte.email && (
-                          <div className="text-sm text-gray-600">{hte.email}</div>
-                        )}
-                        {hte.contact_number && (
-                          <div className="text-sm text-gray-600">{hte.contact_number}</div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button 
-                          onClick={() => router.push(`/coordinator/hte/view/${hte.hte_id}`)}
-                          className="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-2 py-1 rounded text-xs transition-colors"
-                        >
-                          View
-                        </button>
-                        <button 
-                          onClick={() => router.push(`/coordinator/hte/edit/${hte.hte_id}`)}
-                          className="text-yellow-600 hover:text-yellow-900 bg-yellow-100 hover:bg-yellow-200 px-2 py-1 rounded text-xs transition-colors"
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          onClick={() => handleDeactivate(hte.hte_id, hte.name)}
-                          disabled={loading}
-                          className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-2 py-1 rounded text-xs transition-colors disabled:opacity-50"
-                        >
-                          Deactivate
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      </div>
+
+      {error && (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+          <strong>Warning:</strong> {error}
         </div>
       )}
-      
-      <div className="mt-6 text-sm text-gray-500">
-        Showing {htes.length} active HTE{htes.length !== 1 ? 's' : ''}
-      </div>
+
+      {/* HTEs Grid */}
+      {filteredHTEs.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-gray-500 text-lg mb-4">
+            No {statusFilter === 'all' ? '' : statusFilter} HTEs found
+          </div>
+          {statusFilter === 'all' && counts.all === 0 && (
+            <button
+              onClick={handleCreate}
+              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Add Your First HTE
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredHTEs.map((hte) => (
+            <div key={hte.hte_id} className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              {/* Status Badge */}
+              <div className="flex justify-between items-start mb-4">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  hte.is_active 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {hte.is_active ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+
+              {/* HTE Info */}
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{hte.name}</h3>
+                <p className="text-gray-600 text-sm mb-2">{hte.nature_of_work}</p>
+                <p className="text-gray-500 text-sm">{hte.location}</p>
+                
+                {/* Work Tasks */}
+                {hte.work_tasks && hte.work_tasks.length > 0 && (
+                  <div className="mt-3">
+                    <div className="flex flex-wrap gap-1">
+                      {hte.work_tasks.slice(0, 3).map((task, index) => (
+                        <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {task}
+                        </span>
+                      ))}
+                      {hte.work_tasks.length > 3 && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                          +{hte.work_tasks.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleView(hte.hte_id)}
+                  className="flex-1 bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200 transition-colors text-sm"
+                >
+                  View
+                </button>
+                <button
+                  onClick={() => handleEdit(hte.hte_id)}
+                  className="flex-1 bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600 transition-colors text-sm"
+                >
+                  Edit
+                </button>
+                {hte.is_active ? (
+                  <button
+                    onClick={() => handleDeactivate(hte.hte_id, hte.name)}
+                    disabled={actionLoading === hte.hte_id}
+                    className="flex-1 bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition-colors text-sm disabled:opacity-50"
+                  >
+                    {actionLoading === hte.hte_id ? '...' : 'Deactivate'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleReactivate(hte.hte_id, hte.name)}
+                    disabled={actionLoading === hte.hte_id}
+                    className="flex-1 bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 transition-colors text-sm disabled:opacity-50"
+                  >
+                    {actionLoading === hte.hte_id ? '...' : 'Activate'}
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

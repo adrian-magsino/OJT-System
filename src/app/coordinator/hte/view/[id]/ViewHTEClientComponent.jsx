@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { deactivateHTEAction, reactivateHTEAction } from '@/lib/actions/hte-actions';
 
 export default function ViewHTEClientComponent({ initialHTE, hteId, error: serverError }) {
   const [hte] = useState(initialHTE);
   const [error, setError] = useState(serverError);
-  const supabase = createClient();
+  const [actionLoading, setActionLoading] = useState(false);
   const router = useRouter();
 
   const handleEdit = () => {
@@ -17,22 +17,42 @@ export default function ViewHTEClientComponent({ initialHTE, hteId, error: serve
   const handleDeactivate = async () => {
     if (!confirm(`Are you sure you want to deactivate "${hte.name}"?`)) return;
     
+    setActionLoading(true);
     try {
-      const { error } = await supabase
-        .from('hte')
-        .update({ 
-          is_active: false,
-          updated_at: new Date().toISOString()
-        })
-        .eq('hte_id', hteId);
-        
-      if (error) throw error;
+      const result = await deactivateHTEAction(hteId);
       
-      alert('HTE deactivated successfully');
-      router.push('/coordinator/hte');
+      if (result.success) {
+        alert('HTE deactivated successfully');
+        router.push('/coordinator/hte');
+      } else {
+        alert(`Failed to deactivate HTE: ${result.error?.message || 'Unknown error'}`);
+      }
     } catch (error) {
       console.error('Error deactivating HTE:', error);
       alert(`Failed to deactivate HTE: ${error.message}`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReactivate = async () => {
+    if (!confirm(`Are you sure you want to reactivate "${hte.name}"?`)) return;
+    
+    setActionLoading(true);
+    try {
+      const result = await reactivateHTEAction(hteId);
+      
+      if (result.success) {
+        alert('HTE reactivated successfully');
+        router.push('/coordinator/hte');
+      } else {
+        alert(`Failed to reactivate HTE: ${result.error?.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error reactivating HTE:', error);
+      alert(`Failed to reactivate HTE: ${error.message}`);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -95,16 +115,30 @@ export default function ViewHTEClientComponent({ initialHTE, hteId, error: serve
         <div className="flex space-x-3">
           <button
             onClick={handleEdit}
-            className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors"
+            disabled={actionLoading}
+            className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors disabled:opacity-50"
           >
             Edit HTE
           </button>
-          <button
-            onClick={handleDeactivate}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
-          >
-            Deactivate
-          </button>
+          
+          {/* Conditional button based on HTE status */}
+          {hte.is_active ? (
+            <button
+              onClick={handleDeactivate}
+              disabled={actionLoading}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+            >
+              {actionLoading ? 'Deactivating...' : 'Deactivate'}
+            </button>
+          ) : (
+            <button
+              onClick={handleReactivate}
+              disabled={actionLoading}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
+            >
+              {actionLoading ? 'Reactivating...' : 'Reactivate'}
+            </button>
+          )}
         </div>
       </div>
 
@@ -172,22 +206,29 @@ export default function ViewHTEClientComponent({ initialHTE, hteId, error: serve
               </p>
             </div>
             
+            {/* Updated to handle links array instead of single website */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-500 mb-1">Website</label>
-              <p className="text-gray-900">
-                {hte.website ? (
-                  <a 
-                    href={hte.website} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    {hte.website}
-                  </a>
+              <label className="block text-sm font-medium text-gray-500 mb-1">Website/Links</label>
+              <div className="text-gray-900">
+                {hte.links && hte.links.length > 0 ? (
+                  <div className="space-y-1">
+                    {hte.links.map((link, index) => (
+                      <div key={index}>
+                        <a 
+                          href={link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline break-all"
+                        >
+                          {link}
+                        </a>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
                   <span className="text-gray-400 italic">Not provided</span>
                 )}
-              </p>
+              </div>
             </div>
           </div>
         </div>

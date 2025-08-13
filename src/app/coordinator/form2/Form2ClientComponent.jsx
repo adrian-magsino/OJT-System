@@ -202,6 +202,12 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
                               View
                             </button>
                             <button
+                              onClick={() => router.push(`/coordinator/form2/edit/${submission.submission_id}`)}
+                              className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 px-3 py-1 rounded text-xs"
+                            >
+                              Edit
+                            </button>
+                            <button
                               onClick={() => handleReviewSubmission(submission.submission_id, 'approved')}
                               className="bg-green-100 text-green-800 hover:bg-green-200 px-3 py-1 rounded text-xs"
                             >
