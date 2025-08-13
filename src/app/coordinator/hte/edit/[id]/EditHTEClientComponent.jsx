@@ -107,11 +107,7 @@ export default function EditHTEClientComponent({
   };
 
   const handleBack = () => {
-    if (window.history.length > 1) {
-      router.back();
-    } else {
-      router.push('/coordinator/hte');
-    }
+    router.push('/coordinator/hte');
   };
 
   // Handle server errors or missing data
