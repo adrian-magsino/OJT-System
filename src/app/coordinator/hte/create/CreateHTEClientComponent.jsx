@@ -4,6 +4,266 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createHTEWithWorkTasksAction } from '@/lib/actions/hte-actions';
 
+
+const BasicInfoForm = ({ formData, handleInputChange, handleWorkSetupChange }) => (
+  
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {/* Company Name */}
+    <div className="md:col-span-2">
+      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+        Company Name *
+      </label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        value={formData.name}
+        onChange={handleInputChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="e.g., TechCorp Solutions Inc."
+        required
+      />
+    </div>
+
+    {/* Nature of Work */}
+    <div className="md:col-span-2">
+      <label htmlFor="nature_of_work" className="block text-sm font-medium text-gray-700 mb-2">
+        Nature of Work *
+      </label>
+      <input
+        type="text"
+        id="nature_of_work"
+        name="nature_of_work"
+        value={formData.nature_of_work}
+        onChange={handleInputChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="e.g., Software Development, IT Consulting"
+        required
+      />
+    </div>
+
+    {/* Location */}
+    <div className="md:col-span-2">
+      <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+        Location *
+      </label>
+      <input
+        type="text"
+        id="location"
+        name="location"
+        value={formData.location}
+        onChange={handleInputChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="e.g., Makati City, Metro Manila"
+        required
+      />
+    </div>
+
+    {/* Contact Number */}
+    <div>
+      <label htmlFor="contact_number" className="block text-sm font-medium text-gray-700 mb-2">
+        Contact Number
+      </label>
+      <input
+        type="tel"
+        id="contact_number"
+        name="contact_number"
+        value={formData.contact_number}
+        onChange={handleInputChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="e.g., +63 912 345 6789"
+      />
+    </div>
+
+    {/* Email */}
+    <div>
+      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+        Email Address
+      </label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        value={formData.email}
+        onChange={handleInputChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="e.g., hr@techcorp.com"
+      />
+    </div>
+
+    {/* Description */}
+    <div className="md:col-span-2">
+      <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+        Description
+      </label>
+      <textarea
+        id="description"
+        name="description"
+        value={formData.description}
+        onChange={handleInputChange}
+        rows={4}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="Brief description of the company, culture, or additional information..."
+      />
+    </div>
+
+    {/*Person-in-charge */}
+    <div className="md:col-span-2">
+      <label htmlFor="person_in_charge" className="block text-sm font-medium text-gray-700 mb-2">
+        Person-in-charge
+      </label>
+      <input
+        type="text"
+        id="person_in_charge"
+        name="person_in_charge"
+        value={formData.person_in_charge}
+        onChange={handleInputChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="The Person-in-charge of the HTE"
+        
+      />
+    </div>
+
+    {/*Designation */}
+    <div className="md:col-span-2">
+      <label htmlFor="designation" className="block text-sm font-medium text-gray-700 mb-2">
+        Designation
+      </label>
+      <input
+        type="text"
+        id="designation"
+        name="designation"
+        value={formData.designation}
+        onChange={handleInputChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="Designation/Position of the Person-in-charge"
+        
+      />
+    </div>
+
+    {/*Work Setup */}
+    <div className='md:col-span-2'>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Work Setup
+      </label>
+      <div className="flex flex-col sm:flex-row gap-4">
+        {['onsite', 'remote', 'hybrid'].map((setupType) => (
+          <label key={setupType} className="flex items-center">
+            <input 
+              type="checkbox"
+              checked={formData.work_setup.includes(setupType)}
+              onChange={() => handleWorkSetupChange(setupType)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <span className="ml-2 text-sm text-gray-700">
+              {setupType.charAt(0).toUpperCase() + setupType.slice(1)}
+            </span>
+          </label>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const LinksManager = ({ links, handleLinkChange, addLinkField, removeLinkField }) => (
+  <div className="md:col-span-2 mt-6">
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      Website/Links
+    </label>
+    <div className="space-y-3">
+      {links.map((link, index) => (
+        <div key={index} className="flex gap-2">
+          <input
+            type="url"
+            value={link}
+            onChange={(e) => handleLinkChange(index, e.target.value)}
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="e.g., https://www.techcorp.com"
+          />
+          <button
+            type="button"
+            onClick={() => removeLinkField(index)}
+            className="px-3 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
+            title="Remove link"
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={addLinkField}
+        className="inline-flex items-center px-3 py-2 border border-blue-300 rounded-md text-blue-600 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm"
+      >
+        + Add Link
+      </button>
+    </div>
+    <p className="text-xs text-gray-500 mt-2">
+      Add website URLs, social media links, or other relevant links
+    </p>
+  </div>
+);
+
+const WorkTasksSelector = ({ workTaskCategories = [], selectedWorkTasks, handleWorkTaskToggle }) => (
+  <div className="mt-8">
+    <h3 className="text-lg font-medium text-gray-900 mb-4">
+      Available Work Tasks *
+    </h3>
+    <p className="text-sm text-gray-600 mb-4">
+      Select all the types of work tasks that students can perform at this HTE:
+    </p>
+    
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {workTaskCategories.map(category => (
+        <label 
+          key={category.category_id}
+          className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
+        >
+          <input
+            type="checkbox"
+            checked={selectedWorkTasks.includes(category.category_id)}
+            onChange={() => handleWorkTaskToggle(category.category_id)}
+            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+          <div className="ml-3">
+            <div className="text-sm font-medium text-gray-900">
+              {category.category_name}
+            </div>
+            {category.description && (
+              <div className="text-xs text-gray-500">
+                {category.description}
+              </div>
+            )}
+          </div>
+        </label>
+      ))}
+    </div>
+
+    {selectedWorkTasks.length > 0 && (
+      <div className="mt-4 p-3 bg-blue-50 rounded-md">
+        <div className="text-sm text-blue-800">
+          <strong>Selected tasks ({selectedWorkTasks.length}):</strong>
+          <div className="mt-1">
+            {workTaskCategories
+              .filter(cat => selectedWorkTasks.includes(cat.category_id))
+              .map(cat => cat.category_name)
+              .join(', ')}
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+const ErrorDisplay = ({ error }) => (
+  error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          <strong>Error:</strong> {error}
+        </div>
+  )
+);
+
+
 export default function CreateHTEClientComponent({ workTaskCategories, error: serverError }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -11,8 +271,11 @@ export default function CreateHTEClientComponent({ workTaskCategories, error: se
     location: '',
     contact_number: '',
     email: '',
-    links: [],
-    description: ''
+    links: [''], // Initialize with one empty link
+    description: '',
+    person_in_charge: '',
+    designation: '',
+    work_setup: ['']
   });
 
   const [selectedWorkTasks, setSelectedWorkTasks] = useState([]);
@@ -29,20 +292,43 @@ export default function CreateHTEClientComponent({ workTaskCategories, error: se
     }));
   };
 
-  const handleLinksChange = (e) => {
-    const value = e.target.value;
+  const handleWorkSetupChange = (setupType) => {
     setFormData(prev => ({
       ...prev,
-      linksInput: value // Store raw input for display
+      work_setup: prev.work_setup.includes(setupType)
+        ? prev.work_setup.filter(item => item !== setupType) // Remove if already selected
+        : [...prev.work_setup, setupType] // Add if not selected
     }));
   };
 
-  const getProcessedLinks = () => {
-    return formData.linksInput ? 
-      formData.linksInput.split(',').map(link => link.trim()).filter(link => link) : 
-      [];
+  const handleLinkChange = (index, value) => {
+    setFormData(prev => ({
+      ...prev,
+      links: prev.links.map((link, i) => i === index ? value : link)
+    }));
   };
 
+  const addLinkField = () => {
+    setFormData(prev => ({
+      ...prev,
+      links: [...prev.links, '']
+    }));
+  };
+
+  const removeLinkField = (index) => {
+    // Prevent removing the last field if it's the only one
+    if (formData.links.length === 1) {
+      setFormData(prev => ({
+        ...prev,
+        links: ['']
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        links: prev.links.filter((_, i) => i !== index)
+      }));
+    }
+  };
 
   const handleWorkTaskToggle = (categoryId) => {
     setSelectedWorkTasks(prev => {
@@ -65,12 +351,11 @@ export default function CreateHTEClientComponent({ workTaskCategories, error: se
       errors.push('Please enter a valid email address');
     }
     
-    // Validate links array
-    if (formData.links && formData.links.length > 0) {
-      const invalidLinks = formData.links.filter(link => !link.startsWith('http'));
-      if (invalidLinks.length > 0) {
-        errors.push('All website URLs should start with http:// or https://');
-      }
+    // Validate links array - only check non-empty links
+    const nonEmptyLinks = formData.links.filter(link => link.trim());
+    const invalidLinks = nonEmptyLinks.filter(link => !link.startsWith('http'));
+    if (invalidLinks.length > 0) {
+      errors.push('All website URLs should start with http:// or https://');
     }
 
     if (selectedWorkTasks.length === 0) {
@@ -94,7 +379,13 @@ export default function CreateHTEClientComponent({ workTaskCategories, error: se
     setError(null);
 
     try {
-      const result = await createHTEWithWorkTasksAction(formData, selectedWorkTasks);
+      // Filter out empty links before submitting
+      const processedFormData = {
+        ...formData,
+        links: formData.links.filter(link => link.trim())
+      };
+
+      const result = await createHTEWithWorkTasksAction(processedFormData, selectedWorkTasks);
       
       // Check if the action returned an error
       if (!result.success || result.error) {
@@ -153,192 +444,29 @@ export default function CreateHTEClientComponent({ workTaskCategories, error: se
         <p className="text-gray-600">Add a new Host Training Establishment to the system</p>
       </div>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-          <strong>Error:</strong> {error}
-        </div>
-      )}
+      <ErrorDisplay error={error}/>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Company Name */}
-          <div className="md:col-span-2">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-              Company Name *
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., TechCorp Solutions Inc."
-              required
-            />
-          </div>
+        <BasicInfoForm 
+          formData={formData} 
+          handleInputChange={handleInputChange} 
+          handleWorkSetupChange={handleWorkSetupChange} 
+        />
 
-          {/* Nature of Work */}
-          <div className="md:col-span-2">
-            <label htmlFor="nature_of_work" className="block text-sm font-medium text-gray-700 mb-2">
-              Nature of Work *
-            </label>
-            <input
-              type="text"
-              id="nature_of_work"
-              name="nature_of_work"
-              value={formData.nature_of_work}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., Software Development, IT Consulting"
-              required
-            />
-          </div>
-
-          {/* Location */}
-          <div className="md:col-span-2">
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-              Location *
-            </label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., Makati City, Metro Manila"
-              required
-            />
-          </div>
-
-          {/* Contact Number */}
-          <div>
-            <label htmlFor="contact_number" className="block text-sm font-medium text-gray-700 mb-2">
-              Contact Number
-            </label>
-            <input
-              type="tel"
-              id="contact_number"
-              name="contact_number"
-              value={formData.contact_number}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., +63 912 345 6789"
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., hr@techcorp.com"
-            />
-          </div>
-
-          {/* Links */}
-          <div className="md:col-span-2">
-            <label htmlFor="links" className="block text-sm font-medium text-gray-700 mb-2">
-              Website/Links
-            </label>
-            <input
-              type="text"
-              id="links"
-              name="links"
-              value={formData.linksInput || ''}
-              onChange={handleLinksChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., https://www.techcorp.com, https://linkedin.com/company/techcorp"
-            />
-            <p className="text-xs text-gray-500 mt-1">Separate multiple links with commas</p>
-            
-            {/* Preview processed links */}
-            {formData.linksInput && getProcessedLinks().length > 0 && (
-              <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
-                <strong>Links preview:</strong>
-                <ul className="mt-1 space-y-1">
-                  {getProcessedLinks().map((link, index) => (
-                    <li key={index} className="text-blue-600">• {link}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          {/* Description */}
-          <div className="md:col-span-2">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Brief description of the company, culture, or additional information..."
-            />
-          </div>
-        </div>
+        {/*Links Section */}
+        <LinksManager
+          links={formData.links}
+          handleLinkChange={handleLinkChange}
+          addLinkField={addLinkField}
+          removeLinkField={removeLinkField}
+        />
 
         {/* Work Tasks Section */}
-        <div className="mt-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Available Work Tasks *
-          </h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Select all the types of work tasks that students can perform at this HTE:
-          </p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {workTaskCategories.map(category => (
-              <label 
-                key={category.category_id}
-                className="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedWorkTasks.includes(category.category_id)}
-                  onChange={() => handleWorkTaskToggle(category.category_id)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <div className="ml-3">
-                  <div className="text-sm font-medium text-gray-900">
-                    {category.category_name}
-                  </div>
-                  {category.description && (
-                    <div className="text-xs text-gray-500">
-                      {category.description}
-                    </div>
-                  )}
-                </div>
-              </label>
-            ))}
-          </div>
-
-          {selectedWorkTasks.length > 0 && (
-            <div className="mt-4 p-3 bg-blue-50 rounded-md">
-              <div className="text-sm text-blue-800">
-                <strong>Selected tasks ({selectedWorkTasks.length}):</strong>
-                <div className="mt-1">
-                  {workTaskCategories
-                    .filter(cat => selectedWorkTasks.includes(cat.category_id))
-                    .map(cat => cat.category_name)
-                    .join(', ')}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        <WorkTasksSelector
+          workTaskCategories={workTaskCategories}
+          selectedWorkTasks={selectedWorkTasks}
+          handleWorkTaskToggle={handleWorkTaskToggle}
+        />
 
         {/* Form Actions */}
         <div className="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
