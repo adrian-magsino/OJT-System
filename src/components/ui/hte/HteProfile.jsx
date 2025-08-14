@@ -92,7 +92,12 @@ export default async function HteProfile({ hte_id }) {
         <div className="flex gap-2 pt-4">
           <User /> 
           <div className="flex flex-col">
-            {hte.person_in_charge} | {hte.designation}
+            {hte.person_in_charge ? (
+              <span>{hte.person_in_charge} {hte.designation ? `| ${hte.designation}` : ""}</span>
+            ) : (
+              <span className="text-gray-400 italic">Not provided</span>
+            )}
+             
             <span className="text-gray-600 text-xs">Person-in-charge</span>
           </div>
           
@@ -119,7 +124,12 @@ export default async function HteProfile({ hte_id }) {
         <div className="flex gap-2 pt-4">
           <Contact /> 
           <div className="flex flex-col">
-            {hte.contact_number}
+            {hte.contact_number ? (
+              <p>{hte.contact_number}</p>
+            ) : (
+              <span className="text-gray-400 italic">Not provided</span>
+            )}
+            
             <span className="text-gray-600 text-xs">Contact Number</span>
           </div>
         </div>
