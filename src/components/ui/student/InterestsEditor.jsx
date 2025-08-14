@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from "react";
+import { Pencil } from "lucide-react";
 
 export default function InterestsEditor( {initialInterests = [], onSave }) {
   const [interests, setInterests] = useState (initialInterests);
@@ -98,9 +99,9 @@ export default function InterestsEditor( {initialInterests = [], onSave }) {
         {!isEditing? (
           <button
             onClick={() => setIsEditing(true)}
-            className="px-3 py-1 bg-yellow-300 text-gray-700 text-sm rounded hover:bg-yellow-400"
+            className="px-3 py-1 text-green-700 text-sm rounded hover:underline"
           >
-            Edit
+            <div className="flex flex-row gap-2"><Pencil size={16}/> Edit</div>
           </button>
         ) : (
           <div className="flex gap-2">
