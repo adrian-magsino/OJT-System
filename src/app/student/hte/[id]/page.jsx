@@ -23,7 +23,7 @@ export default async function HteProfilePage({ params, searchParams }) {
       <div className="p-4">
         <Link
           href={createBackUrl()}
-          className="items-center gap-2 px-4 py-2 text-white bg-blue-700"
+          className="items-center gap-2 px-4 py-2 text-white bg-green-700"
         >
           Back
         </Link>

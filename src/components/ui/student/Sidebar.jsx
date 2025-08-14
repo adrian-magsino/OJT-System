@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSidebar } from "@/contexts/SidebarProvider";
+import { PanelsTopLeft, BookText } from "lucide-react"
 
 export default function Sidebar() {
   const { isCollapsed, setCollapsed, toggleSidebar, isMobile } = useSidebar();
@@ -82,7 +83,7 @@ export default function Sidebar() {
                 title={isCollapsed && !isMobile ? 'Dashboard' : ''}
                 onClick={handleLinkClick}
               >
-                <Image src="/icons/panels-top-left.svg" width={20} height={20} alt="dashboard-icon"/>
+                <PanelsTopLeft />
                 {(!isCollapsed || isMobile) && <span className="ms-3">HTE LIST</span>}
               </Link>
             </li>
@@ -93,7 +94,7 @@ export default function Sidebar() {
                 title={isCollapsed && !isMobile ? 'Form 2' : ''}
                 onClick={handleLinkClick}
               >
-                <Image src="/icons/book-text.svg" width={20} height={20} alt="forms-icon"/>
+                <BookText />
                 {(!isCollapsed || isMobile) && <span className="ms-3">FORM 2</span>}
               </Link>
             </li>
