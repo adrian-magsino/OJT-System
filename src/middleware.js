@@ -1,6 +1,7 @@
 import { updateSession } from "./lib/supabase/middleware";
 
 export async function middleware(request) {
+  console.log("MIDDLEWARE TRIGGERED: ", request.nextUrl.pathname);
   return await updateSession(request);
   
 }
