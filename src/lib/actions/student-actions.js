@@ -1,6 +1,6 @@
 'use server'
 
-import { updateStudentProfile } from "@/lib/services/student-service";
+import { updateStudentProfile, getCurrentStudentProfile } from "@/lib/services/student-service";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/services/user-service";
@@ -31,4 +31,34 @@ export async function updateInterestsField(interests) {
 
  revalidatePath('/student/profile');
  return { success: true };
+}
+
+export async function updateProgramAndStudentNumber(formData) {
+  const program = formData.get('program')?.trim();
+  const student_number = formData.get('student_number')?.trim();
+
+  if (!program || !student_number) {
+    throw new Error('Program and Student Number are required');
+  }
+
+  const { student, error } = await getCurrentStudentProfile();
+  if (error || !student) {
+    throw new Error(error?.message || 'Unable to load student profile');
+  }
+
+  if (student.verification_status?.toLowerCase() === 'verified') {
+    throw new Error('Verified students cannot edit program or student number');
+  }
+
+  const { error: updateError } = await updateStudentProfile({
+    program,
+    student_number
+  });
+
+  if (updateError) {
+    throw new Error(updateError.message || 'Failed to update profile');
+  }
+
+  revalidatePath('/student/profile');
+  return { success: true };
 }

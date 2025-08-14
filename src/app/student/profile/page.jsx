@@ -3,10 +3,13 @@
 import InfoField from "@/components/ui/InfoField";
 import InterestsEditor from "@/components/ui/student/InterestsEditor";
 import SpecializationEditor from "@/components/ui/student/SpecializationEditor";
-import { updateInterestsField, updateSpecializationsField } from "@/lib/actions/student-actions";
+import StudentDetailsSection from "@/components/ui/student/EditStudentProfile";
+import { updateInterestsField, updateSpecializationsField, updateProgramAndStudentNumber } from "@/lib/actions/student-actions";
 import { getCurrentStudentProfile } from "@/lib/services/student-service";
 import { errorFallback } from "@/lib/utils/error/error-handler";
 import Image from "next/image";
+
+
 
 export default async function StudentProfile() {
   const { student, error } = await getCurrentStudentProfile();
@@ -33,54 +36,53 @@ export default async function StudentProfile() {
       <div className="flex gap-[20px] flex-row flex-wrap bg-gray-50">
 
         {/*Main Info Container*/}
-        <div className="w-full min-h-30 grow bg-white border-1 border-gray-200 mx-10 mt-10 flex flex-row">
+        <div className="w-full min-h-30 grow bg-white border-1 border-gray-200 mx-10 mt-10 flex flex-row items-center">
           
           {/*Profile Container */}
-          <div className="p-15">
+          <div className="py-15 pl-15 pr-6">
             {/* Simple profile picture display */}
-            <div className="flex flex-col items-center gap-5">
-              <div 
-                data-component="avatar" 
-                className="bg-amber-300 w-30 h-30 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-200"
-              >
-                {student.profile_picture_url ? (
-                  <Image
-                    src={student.profile_picture_url}
-                    alt={`${student.name}'s profile picture`}
-                    width={120}
-                    height={120}
-                    className="w-full h-full object-cover"
-                    sizes="120px"
-                  />
-                ) : (
-                  <span className="text-gray-800 font-semibold text-3xl">
-                    {student.name?.toUpperCase().trim()[0]}
-                  </span>
-                )}
-              </div>
-              
-              <span className="text-gray-800 font-medium text-2xl">{student.name}</span>
-              <span className="text-gray-800 font-medium">Verification Status: {student.verification_status}</span>
+            <div 
+              data-component="avatar" 
+              className="bg-amber-300 w-30 h-30 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-200"
+            >
+              {student.profile_picture_url ? (
+                <Image
+                  src={student.profile_picture_url}
+                  alt={`${student.name}'s profile picture`}
+                  width={120}
+                  height={120}
+                  className="w-full h-full object-cover"
+                  sizes="120px"
+                />
+              ) : (
+                <span className="text-gray-800 font-semibold text-3xl">
+                  {student.name?.toUpperCase().trim()[0]}
+                </span>
+              )}
             </div>
+              
+              
+
           </div>
 
           {/*Personal Info Container */}
           <div className="grow">
-            <div className="mt-8 mx-6">
-              <span className="text-bold text-xl">STUDENT DETAILS</span>
+            <div className="mt-8 flex flex-row items-center gap-3 ">
+              <div className="text-gray-800 font-medium text-3xl">{student.name}</div>
+              {student.verification_status.toLowerCase() === "verified" ? (
+                <div className="text-white rounded-full text-xs bg-green-500 px-2 py-1 inline-block">VERIFIED</div>
+              ):(
+                <div className="text-white rounded-full text-xs bg-red-500 px-2 py-1 inline-block">UNVERIFIED</div>
+              )}
             </div>
             
-            <div className="grid grid-cols-2 gap-10 px-8 py-8">
-              <InfoField label="Email" value={student.email}/>
-              <InfoField label="Program" value={student.program}/>
-              <InfoField label="Student Number" value={student.student_number}/>
-            </div>
+            <StudentDetailsSection student={student} onSave={updateProgramAndStudentNumber}/>
             
           </div>
         </div>
         {/*Skills and Specializations Section*/}
-        <div className="w-full min-h-30 grow bg-white border-1 border-gray-200 mx-10">
-          <h3 className="ml-2 mt-2 font-bold">SKILLS AND SPECIALIZATIONS</h3>
+        <div className="w-full min-h-30 grow bg-white border-1 border-gray-200 mx-10 p-2">
+          <h3 className="ml-2 mt-2 font-bold text-green-800">SKILLS AND SPECIALIZATIONS</h3>
 
           <SpecializationEditor
             initialSpecializations={student.specializations || []} 
@@ -90,8 +92,8 @@ export default async function StudentProfile() {
         </div>
 
         {/*Interests Section*/}
-        <div className="w-full min-h-30 grow bg-white border-1 border-gray-200 mx-10 mb-5">
-          <h3 className="ml-2 mt-2 font-bold">INTERESTS</h3>
+        <div className="w-full min-h-30 grow bg-white border-1 border-gray-200 mx-10 p-2 mb-5">
+          <h3 className="ml-2 mt-2 font-bold text-green-800">INTERESTS</h3>
 
           <InterestsEditor 
             initialInterests={student.interests || []}
