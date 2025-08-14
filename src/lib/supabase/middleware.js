@@ -2,13 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, NextRequest } from "next/server";
 
 export async function updateSession(request) {
-
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  // With Fluid compute, don't put this client in a global environment
-  // variable. Always create a new one on each request.
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -32,42 +29,91 @@ export async function updateSession(request) {
     },
   );
 
-  // Do not run code between createServerClient and
-  // supabase.auth.getClaims(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
-  // IMPORTANT: If you remove getClaims() and you use server-side rendering
-  // with the Supabase client, your users may be randomly logged out.
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
+  // Define route protection rules
+  const publicRoutes = ["/", "/home", "/about"];
+  const authRoutes = ["/auth"];
+  const studentRoutes = ["/student"];
+  const coordinatorRoutes = ["/coordinator"];
 
-  const protectedRoutes = ["/student", "/coordinator"];
-  const isProtectedRoute = protectedRoutes.some(route => 
+  const isPublicRoute = publicRoutes.some(route => 
+    request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route)
+  );
+  
+  const isAuthRoute = authRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
-  )
+  );
+  
+  const isStudentRoute = studentRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  );
+  
+  const isCoordinatorRoute = coordinatorRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  );
 
-  if (isProtectedRoute && !user) {
+  // Allow public routes
+  if (isPublicRoute || isAuthRoute) {
+    return supabaseResponse;
+  }
 
-    // no user, potentially respond by redirecting the user to the login page
+  // Check if user is authenticated
+  if (!user) {
+    console.log('No user found, redirecting to login');
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
   }
 
-  //NOTES FROM STARTER KIT
-  // IMPORTANT: You *must* return the supabaseResponse object as it is.
-  // If you're creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so:
-  //    const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing
-  //    the cookies!
-  // 4. Finally:
-  //    return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out
-  // of sync and terminate the user's session prematurely!
+  // For protected routes, get user role from database
+  if (isStudentRoute || isCoordinatorRoute) {
+    try {
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('user_id', user.sub)  // user.sub is the user ID in the claims
+        .single();
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        const url = request.nextUrl.clone();
+        url.pathname = "/error";
+        return NextResponse.redirect(url);
+      }
+
+      const userRole = userData?.role;
+      console.log('User role:', userRole, 'Requested path:', request.nextUrl.pathname);
+
+      // Check role-based access
+      if (isCoordinatorRoute) {
+        // Only coordinators and admins can access coordinator routes
+        if (!['admin', 'ojt_coordinator'].includes(userRole)) {
+          console.log('Access denied: User role', userRole, 'cannot access coordinator routes');
+          const url = request.nextUrl.clone();
+          url.pathname = "/unauthorized";
+          return NextResponse.redirect(url);
+        }
+      }
+
+      if (isStudentRoute) {
+        // Only students can access student routes (unless they're admin)
+        if (!['student', 'admin'].includes(userRole)) {
+          console.log('Access denied: User role', userRole, 'cannot access student routes');
+          const url = request.nextUrl.clone();
+          url.pathname = "/unauthorized";
+          return NextResponse.redirect(url);
+        }
+      }
+
+    } catch (error) {
+      console.error('Middleware error:', error);
+      const url = request.nextUrl.clone();
+      url.pathname = "/error";
+      return NextResponse.redirect(url);
+    }
+  }
 
   return supabaseResponse;
 }
