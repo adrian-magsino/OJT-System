@@ -4,7 +4,7 @@ import { parseParameter } from "next/dist/shared/lib/router/utils/route-regex";
 import Image from "next/image";
 import Link from "next/link"; 
 import { usePathname, useSearchParams } from "next/navigation";
-import { MapPin } from "lucide-react";
+import { MapPin, Building } from "lucide-react";
 
 export default function HteCard({ hte_data, isSelected}) {
   const pathname = usePathname();
@@ -65,15 +65,7 @@ function HteCardContent({ hte_data }) {
   return (
     <div className="flex p-2">
       {/*HTE Image Container */}
-      <div className="w-20 h-20 relative flex-shrink-0 mb-5">
-        <Image 
-          src="/sample_hte_pfp.png"
-          fill 
-          alt="Hte Profile Picture"
-          className="object-cover border-2 border-black"
-          sizes="80px"
-        />
-      </div>
+      <Building size={50} />
 
       {/*HTE details preview */}
       <div className="flex flex-col ml-6">

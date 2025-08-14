@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSidebar } from "@/contexts/SidebarProvider";
+import { PanelsTopLeft, BookText } from "lucide-react"
+import { external_links } from "@/lib/config/site";
 
 export default function Sidebar() {
   const { isCollapsed, setCollapsed, toggleSidebar, isMobile } = useSidebar();
@@ -82,7 +84,7 @@ export default function Sidebar() {
                 title={isCollapsed && !isMobile ? 'Dashboard' : ''}
                 onClick={handleLinkClick}
               >
-                <Image src="/icons/panels-top-left.svg" width={20} height={20} alt="dashboard-icon"/>
+                <PanelsTopLeft />
                 {(!isCollapsed || isMobile) && <span className="ms-3">HTE LIST</span>}
               </Link>
             </li>
@@ -93,12 +95,26 @@ export default function Sidebar() {
                 title={isCollapsed && !isMobile ? 'Form 2' : ''}
                 onClick={handleLinkClick}
               >
-                <Image src="/icons/book-text.svg" width={20} height={20} alt="forms-icon"/>
+                <BookText />
                 {(!isCollapsed || isMobile) && <span className="ms-3">FORM 2</span>}
               </Link>
             </li>
           </ul>
+          {(!isCollapsed || isMobile) && 
+          <div className="bottom-20 absolute text-wrap px-2">
+            <a href={external_links.quick_links.main} className="text-xs text-gray-700 hover:underline">Main</a>
+            <span className="text-xs text-gray-700"> · </span>
+            <a href={external_links.quick_links.about_us} className="text-xs text-gray-700 hover:underline">About us</a>
+            <span className="text-xs text-gray-700"> · </span>
+            <a href={external_links.quick_links.connect_with_us} className=" text-xs text-gray-700 hover:underline">Connect with us</a>
+            <span className="text-xs text-gray-700"> · </span>
+            <a href={external_links.socials.facebook} className="text-xs text-gray-700 hover:underline">Facebook</a>
+            
+            
+          </div>}
+          
         </div>
+        
       </div>
     </>
   );

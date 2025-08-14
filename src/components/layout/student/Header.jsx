@@ -29,7 +29,7 @@ export default function StudentHeader({ user, error, student }) {
     <header className="w-full h-12 fixed bg-green-700 z-40">
       <nav className="mx-auto h-full flex items-center justify-between px-8">
         {/*CVSU LOGO */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-4 lg:ml-0">
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="w-10 h-10 relative">
               <Image 
