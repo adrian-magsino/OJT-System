@@ -13,7 +13,7 @@ export default function StudentHeader({ user, error, student }) {
 
   if (error || !user) {
     return (
-      <header className="w-full h-12 fixed bg-red-600 z-40">
+      <header className="w-full h-header fixed bg-red-600 z-40">
         <nav className="mx-auto h-full flex items-center justify-center px-8">
           <div className="text-white font-medium">ERROR: UNABLE TO LOAD USER DATA</div>
           <LogoutButton />

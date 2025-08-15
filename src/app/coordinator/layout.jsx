@@ -1,10 +1,12 @@
+import CoordinatorHeader from "@/components/layout/coordinator/Header";
 
 
 export default function CoordinatorLayout({ children }){
   return (
     <>
       {/*Header Component for OJTCoordinator interface*/}
-      <main>
+      <CoordinatorHeader />
+      <main className="pt-header">
         {children}
       </main>
     </>
