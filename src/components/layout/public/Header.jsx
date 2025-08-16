@@ -10,7 +10,7 @@ const routes = [
 export default function Header() {
   return (
     <header className="w-full h-header fixed bg-green-700 z-40">
-      <nav className="mx-auto h-full flex items-center justify-between px-8">
+      <nav className="mx-auto h-full flex items-center justify-between px-8 shadow-2xl">
         {/*CVSU LOGO */}
         <div className="flex items-center gap-3">
           <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">

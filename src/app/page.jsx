@@ -9,7 +9,7 @@ export default function Main() {
   return (
     <>
       <Header />
-      <div className="pt-12">
+      <div className="bg-gray-200 inset-shadow-sm">
         <main>
           <Home />
           <About />

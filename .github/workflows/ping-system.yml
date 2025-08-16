@@ -1,0 +1,29 @@
+name: Database Ping System
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly
+  workflow_dispatch:
+
+jobs:
+  ping-database:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ping Database
+        run: |
+          echo "Pinging database at: ${{ secrets.BASE_URL }}/api/ping"
+          
+          response=$(curl -s -w "\n%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n -1)
+          
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+          
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ Database ping successful!"
+          else
+            echo "❌ Database ping failed!"
+            exit 1
+          fi

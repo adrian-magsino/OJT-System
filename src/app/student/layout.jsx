@@ -9,7 +9,7 @@ export default function StudentLayout({ children }){
     <SidebarProvider>
       <div>
         <StudentHeaderWrapper />
-        <div className="pt-header">
+        <div className="pt-12">
           <Sidebar />
           <SidebarLayout>
             {children}
