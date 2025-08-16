@@ -10,11 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Debug Environment
+        run: |
+          echo "BASE_URL is set to: ${{ secrets.BASE_URL }}"
+          echo "Full ping URL will be: ${{ secrets.BASE_URL }}/api/ping"
+          
+      - name: Test Connectivity with Redirects
+        run: |
+          echo "Testing with redirect following..."
+          curl -L -v "${{ secrets.BASE_URL }}/api/ping" 2>&1 | head -20
+          
       - name: Ping Database
         run: |
           echo "Pinging database at: ${{ secrets.BASE_URL }}/api/ping"
           
-          response=$(curl -s -w "\n%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
+          # Use -L flag to follow redirects
+          response=$(curl -s -L -w "\n%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n -1)
           
@@ -23,7 +34,13 @@ jobs:
           
           if [ "$http_code" -eq 200 ]; then
             echo "✅ Database ping successful!"
+            echo "Response details: $body"
           else
-            echo "❌ Database ping failed!"
+            echo "❌ Database ping failed with status: $http_code"
+            echo "Response body: $body"
+            
+            # Additional debugging
+            echo "--- Additional Debug Info ---"
+            curl -I -L "${{ secrets.BASE_URL }}/api/ping" 2>&1 || true
             exit 1
           fi
