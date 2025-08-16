@@ -6,7 +6,7 @@ export default function CoordinatorLayout({ children }){
     <>
       {/*Header Component for OJTCoordinator interface*/}
       <CoordinatorHeader />
-      <main className="pt-header">
+      <main className="pt-12">
         {children}
       </main>
     </>
