@@ -1,39 +1,29 @@
-name: Comprehensive Health Check
+name: Database Ping System
 
 on:
   schedule:
     - cron: '0 0 * * 0'  # Weekly
-    - cron: '0 0 */3 * *' # Every 3 days
   workflow_dispatch:
 
 jobs:
-  health-check:
+  ping-database:
     runs-on: ubuntu-latest
     
-    strategy:
-      matrix:
-        endpoint:
-          - name: "Database Ping"
-            url: "/api/ping"
-          - name: "General Health"
-            url: "/api/health"
-    
     steps:
-      - name: Check ${{ matrix.endpoint.name }}
+      - name: Ping Database
         run: |
-          full_url="${{ secrets.BASE_URL }}${{ matrix.endpoint.url }}"
-          echo "Checking: ${{ matrix.endpoint.name }} at $full_url"
+          echo "Pinging database at: ${{ secrets.BASE_URL }}/api/ping"
           
-          response=$(curl -s -w "\n%{http_code}" "$full_url")
+          response=$(curl -s -w "\n%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n -1)
           
-          echo "Status: $http_code"
+          echo "HTTP Status: $http_code"
           echo "Response: $body"
           
           if [ "$http_code" -eq 200 ]; then
-            echo "✅ ${{ matrix.endpoint.name }} is healthy"
+            echo "✅ Database ping successful!"
           else
-            echo "❌ ${{ matrix.endpoint.name }} failed"
+            echo "❌ Database ping failed!"
             exit 1
           fi
