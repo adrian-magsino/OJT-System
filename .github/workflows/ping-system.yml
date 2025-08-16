@@ -1,0 +1,39 @@
+name: Comprehensive Health Check
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly
+    - cron: '0 0 */3 * *' # Every 3 days
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        endpoint:
+          - name: "Database Ping"
+            url: "/api/ping"
+          - name: "General Health"
+            url: "/api/health"
+    
+    steps:
+      - name: Check ${{ matrix.endpoint.name }}
+        run: |
+          full_url="${{ secrets.BASE_URL }}${{ matrix.endpoint.url }}"
+          echo "Checking: ${{ matrix.endpoint.name }} at $full_url"
+          
+          response=$(curl -s -w "\n%{http_code}" "$full_url")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n -1)
+          
+          echo "Status: $http_code"
+          echo "Response: $body"
+          
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ ${{ matrix.endpoint.name }} is healthy"
+          else
+            echo "❌ ${{ matrix.endpoint.name }} failed"
+            exit 1
+          fi
