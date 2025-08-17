@@ -2,7 +2,7 @@ name: Database Ping System
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Weekly
+    - cron: '* * * * *'  # Every minute for testing
   workflow_dispatch:
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
             echo "✅ Database ping successful!"
             echo "Response details: $body"
           else
-            echo "❌ Database ping failed with status: $http_code"
+            echo "❌ Database ping failed with status: $code"
             echo "Response body: $body"
             
             # Additional debugging
