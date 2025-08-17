@@ -1,5 +1,38 @@
 import { createClient } from '@/lib/supabase/server'
 
+
+export async function getStudentsByProgram(program) {
+  const supabase = await createClient()
+  
+  try {
+    // Validate program parameter
+    if (!program || !['BSCS', 'BSIT'].includes(program)) {
+      throw new Error('Invalid program. Must be BSCS or BSIT')
+    }
+
+    const { data, error } = await supabase.rpc('get_students_by_program', {
+      program_filter: program
+    })
+    
+    if (error) {
+      throw error
+    }
+    
+    return {
+      success: true,
+      data: data || [],
+      error: null
+    }
+  } catch (error) {
+    console.error('Error fetching students by program:', error)
+    return {
+      success: false,
+      data: [],
+      error: { message: error.message || 'Failed to fetch students' }
+    }
+  }
+}
+
 export async function checkIsCoordinator() {
   const supabase = await createClient()
   
@@ -110,3 +143,4 @@ export async function generateDocument(submissionId, documentType) {
     }
   }
 }
+

@@ -4,9 +4,17 @@ import {
   getForm2Submissions, 
   reviewForm2Submission, 
   generateDocument,
-  checkIsCoordinator
+  checkIsCoordinator,
+  getStudentsByProgram
 } from '@/lib/services/coordinator-service'
 import { revalidatePath } from 'next/cache'
+
+
+
+
+export async function getStudentsByProgramAction(program) {
+  return await getStudentsByProgram(program)
+}
 
 export async function checkCoordinatorStatusAction() {
   try {

@@ -1,13 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { siteConfig } from "@/lib/config/site";
-import { PanelsTopLeft, LayoutList, BookText } from "lucide-react"
+import { PanelsTopLeft, LayoutList, BookText, Users } from "lucide-react"
 
 
 const routes = [
   {name: "Dashboard", path: "/coordinator", icon: PanelsTopLeft },
   {name: "Hte List", path: "/coordinator/hte", icon: LayoutList },
-  {name: "Form Submissions", path: "/coordinator/form2", icon: BookText }
+  {name: "Form Submissions", path: "/coordinator/form2", icon: BookText },
+  {name: "Student List", path:"/coordinator/verification", icon: Users}
 ]
 export default function CoordinatorHeader() {
 

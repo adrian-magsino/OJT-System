@@ -32,42 +32,11 @@ export default function CoordinatorDashboard() {
     <div className="container mx-auto p-6">
       {/* Header Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Coordinator Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
         <p className="text-gray-600">Manage HTEs and review student submissions</p>
       </div>
 
-      {/* Quick Stats/Overview (placeholder for future) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
-          <div className="flex items-center">
-            <LayoutList className="h-8 w-8 text-blue-500" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total HTEs</p>
-              <p className="text-2xl font-bold text-gray-900">-</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-          <div className="flex items-center">
-            <BookText className="h-8 w-8 text-green-500" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Pending Submissions</p>
-              <p className="text-2xl font-bold text-gray-900">-</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
-          <div className="flex items-center">
-            <FileText className="h-8 w-8 text-purple-500" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Documents Generated</p>
-              <p className="text-2xl font-bold text-gray-900">-</p>
-            </div>
-          </div>
-        </div>
-      </div>
+    
 
       {/* Main Action Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
