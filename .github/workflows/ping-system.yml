@@ -2,45 +2,34 @@ name: Database Ping System
 
 on:
   schedule:
-    - cron: '* * * * *'  # Every minute for testing
+    - cron: '*/10 * * * *'  # Every 10 minutes (more reliable)
   workflow_dispatch:
+  push:  # Add this for immediate testing
+    branches: [ main ]
 
 jobs:
   ping-database:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Debug Environment
+      - name: Debug Info
         run: |
-          echo "BASE_URL is set to: ${{ secrets.BASE_URL }}"
-          echo "Full ping URL will be: ${{ secrets.BASE_URL }}/api/ping"
-          
-      - name: Test Connectivity with Redirects
-        run: |
-          echo "Testing with redirect following..."
-          curl -L -v "${{ secrets.BASE_URL }}/api/ping" 2>&1 | head -20
+          echo "Workflow triggered at: $(date)"
+          echo "Trigger event: ${{ github.event_name }}"
+          echo "BASE_URL: ${{ secrets.BASE_URL }}"
           
       - name: Ping Database
         run: |
-          echo "Pinging database at: ${{ secrets.BASE_URL }}/api/ping"
-          
-          # Use -L flag to follow redirects
           response=$(curl -s -L -w "\n%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n -1)
           
-          echo "HTTP Status: $http_code"
+          echo "Status: $http_code"
           echo "Response: $body"
           
           if [ "$http_code" -eq 200 ]; then
-            echo "✅ Database ping successful!"
-            echo "Response details: $body"
+            echo "✅ Success!"
           else
-            echo "❌ Database ping failed with status: $code"
-            echo "Response body: $body"
-            
-            # Additional debugging
-            echo "--- Additional Debug Info ---"
-            curl -I -L "${{ secrets.BASE_URL }}/api/ping" 2>&1 || true
+            echo "❌ Failed!"
             exit 1
           fi
