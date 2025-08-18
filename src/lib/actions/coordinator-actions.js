@@ -5,7 +5,11 @@ import {
   reviewForm2Submission, 
   generateDocument,
   checkIsCoordinator,
-  getStudentsByProgram
+  getStudentsByProgram,
+  getVerifiedStudents,
+  addVerifiedStudent,
+  addVerifiedStudentsBulk,
+  removeVerifiedStudent
 } from '@/lib/services/coordinator-service'
 import { revalidatePath } from 'next/cache'
 
@@ -78,4 +82,39 @@ export async function generateDocumentAction(submissionId, documentType) {
       error: { message: 'Failed to generate document' }
     }
   }
+}
+
+//FOR STUDENT VERIFICATION
+export async function getVerifiedStudentsAction() {
+  return await getVerifiedStudents()
+}
+
+export async function addVerifiedStudentAction(email, studentNumber) {
+  const result = await addVerifiedStudent(email, studentNumber)
+  
+  if (result.success) {
+    revalidatePath('/coordinator/verification')
+  }
+  
+  return result
+}
+
+export async function addVerifiedStudentsBulkAction(studentsData) {
+  const result = await addVerifiedStudentsBulk(studentsData)
+  
+  if (result.success) {
+    revalidatePath('/coordinator/verification')
+  }
+  
+  return result
+}
+
+export async function removeVerifiedStudentAction(id) {
+  const result = await removeVerifiedStudent(id)
+  
+  if (result.success) {
+    revalidatePath('/coordinator/verification')
+  }
+  
+  return result
 }

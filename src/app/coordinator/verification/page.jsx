@@ -2,15 +2,31 @@
 
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { getStudentsByProgramAction } from "@/lib/actions/coordinator-actions";
+import { 
+  getStudentsByProgramAction,
+  getVerifiedStudentsAction,
+  addVerifiedStudentAction,
+  addVerifiedStudentsBulkAction,
+  removeVerifiedStudentAction
+} from "@/lib/actions/coordinator-actions";
 
 export default function VerificationPage() {
   const [selectedProgram, setSelectedProgram] = useState("");
-  const [csvFile, setCsvFile] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [students, setStudents] = useState([]);
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  
+  // Verified students state
+  const [verifiedStudents, setVerifiedStudents] = useState([]);
+  const [loadingVerifiedStudents, setLoadingVerifiedStudents] = useState(false);
+  
+  // Manual add form state
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newStudent, setNewStudent] = useState({ email: "", studentNumber: "" });
+  
+  // CSV upload state
+  const [csvFile, setCsvFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const programs = [
     { value: "BSCS", label: "Bachelor of Science in Computer Science" },
@@ -29,6 +45,11 @@ export default function VerificationPage() {
     if (statusFilter === "all") return true;
     return student.verification_status === statusFilter;
   });
+
+  // Load verified students on component mount
+  useEffect(() => {
+    fetchVerifiedStudents();
+  }, []);
 
   // Fetch students when program is selected
   useEffect(() => {
@@ -62,6 +83,62 @@ export default function VerificationPage() {
     }
   };
 
+  const fetchVerifiedStudents = async () => {
+    setLoadingVerifiedStudents(true);
+    try {
+      const result = await getVerifiedStudentsAction();
+      if (result.success) {
+        setVerifiedStudents(result.data);
+      } else {
+        console.error('Error fetching verified students:', result.error);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoadingVerifiedStudents(false);
+    }
+  };
+
+  const handleAddStudent = async (e) => {
+    e.preventDefault();
+    if (!newStudent.email || !newStudent.studentNumber) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    try {
+      const result = await addVerifiedStudentAction(newStudent.email, newStudent.studentNumber);
+      if (result.success) {
+        setNewStudent({ email: "", studentNumber: "" });
+        setShowAddForm(false);
+        fetchVerifiedStudents();
+        alert('Student added successfully');
+      } else {
+        alert(result.error?.message || 'Failed to add student');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to add student');
+    }
+  };
+
+  const handleRemoveStudent = async (id) => {
+    if (!confirm('Are you sure you want to remove this student?')) return;
+
+    try {
+      const result = await removeVerifiedStudentAction(id);
+      if (result.success) {
+        fetchVerifiedStudents();
+        alert('Student removed successfully');
+      } else {
+        alert(result.error?.message || 'Failed to remove student');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to remove student');
+    }
+  };
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file && file.type === "text/csv") {
@@ -72,22 +149,61 @@ export default function VerificationPage() {
     }
   };
 
+  const handleCsvUpload = async () => {
+    if (!csvFile) {
+      alert('Please select a CSV file');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const text = await csvFile.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      // Skip header if it exists
+      const dataLines = lines.slice(1);
+      
+      const studentsData = dataLines.map(line => {
+        const [email, studentNumber] = line.split(',').map(item => item.trim());
+        return { email, student_number: studentNumber };
+      }).filter(student => student.email && student.student_number);
+
+      if (studentsData.length === 0) {
+        alert('No valid student data found in CSV');
+        return;
+      }
+
+      const result = await addVerifiedStudentsBulkAction(studentsData);
+      if (result.success) {
+        const { success_count, error_count, errors } = result.data;
+        fetchVerifiedStudents();
+        setCsvFile(null);
+        document.getElementById("csvFile").value = "";
+        
+        let message = `Successfully added ${success_count} students.`;
+        if (error_count > 0) {
+          message += `\n${error_count} errors occurred:\n${errors.join('\n')}`;
+        }
+        alert(message);
+      } else {
+        alert(result.error?.message || 'Failed to upload students');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to process CSV file');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleVerification = async () => {
     if (!selectedProgram) {
       alert("Please select a program");
       return;
     }
-    if (!csvFile) {
-      alert("Please upload a CSV file");
-      return;
-    }
 
-    setIsLoading(true);
-    // TODO: Implement verification logic
-    setTimeout(() => {
-      setIsLoading(false);
-      alert("Verification process started!");
-    }, 1000);
+    // TODO: Implement actual verification logic
+    alert("Verification process started!");
   };
 
   // Get status counts for display
@@ -107,14 +223,154 @@ export default function VerificationPage() {
           Student Verification
         </h1>
         <p className="text-gray-600">
-          Import a CSV list of students and verify accounts by matching email addresses and student numbers.
+          Manage verified student list and verify accounts by matching email addresses and student numbers.
         </p>
       </div>
 
       <div className="space-y-6">
+        {/* Verified Students Management */}
+        <Card className="p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+            <h2 className="text-xl font-semibold">
+              Verified Students List ({verifiedStudents.length})
+            </h2>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                Add Student
+              </button>
+            </div>
+          </div>
+
+          {/* Add Student Form */}
+          {showAddForm && (
+            <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+              <h3 className="font-medium mb-3">Add New Student</h3>
+              <form onSubmit={handleAddStudent} className="flex gap-4 items-end">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={newStudent.email}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Student Number</label>
+                  <input
+                    type="text"
+                    value={newStudent.studentNumber}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, studentNumber: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  Add
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setNewStudent({ email: "", studentNumber: "" });
+                  }}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* CSV Upload Section */}
+          <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+            <h3 className="font-medium mb-3">Bulk Upload via CSV</h3>
+            <div className="space-y-3">
+              <div>
+                <input
+                  type="file"
+                  id="csvFile"
+                  accept=".csv"
+                  onChange={handleFileChange}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+              </div>
+              {csvFile && (
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-green-600">
+                    ✓ File selected: {csvFile.name}
+                  </div>
+                  <button
+                    onClick={handleCsvUpload}
+                    disabled={isUploading}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  >
+                    {isUploading ? "Uploading..." : "Upload CSV"}
+                  </button>
+                </div>
+              )}
+              <div className="text-xs text-gray-500">
+                <p>Expected CSV format (with header):</p>
+                <code className="bg-gray-100 px-2 py-1 rounded">
+                  Email, Student Number
+                </code>
+              </div>
+            </div>
+          </div>
+
+          {/* Verified Students Table */}
+          {loadingVerifiedStudents ? (
+            <div className="text-center py-4">Loading verified students...</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="border border-gray-300 px-4 py-2 text-left">Email</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">Student Number</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">Added Date</th>
+                    <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {verifiedStudents.map((student) => (
+                    <tr key={student.id} className="hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-2">{student.email}</td>
+                      <td className="border border-gray-300 px-4 py-2">{student.student_number}</td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {new Date(student.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2 text-center">
+                        <button
+                          onClick={() => handleRemoveStudent(student.id)}
+                          className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {verifiedStudents.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  No verified students found. Add students using the form above or upload a CSV file.
+                </div>
+              )}
+            </div>
+          )}
+        </Card>
+
         {/* Program Selection */}
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Select Program</h2>
+          <h2 className="text-xl font-semibold mb-4">Select Program for Verification</h2>
           <div className="space-y-3">
             {programs.map((program) => (
               <label key={program.value} className="flex items-center space-x-3 cursor-pointer">
@@ -222,36 +478,6 @@ export default function VerificationPage() {
           </Card>
         )}
 
-        {/* CSV File Upload */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Upload Student List</h2>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="csvFile" className="block text-sm font-medium text-gray-700 mb-2">
-                CSV File
-              </label>
-              <input
-                type="file"
-                id="csvFile"
-                accept=".csv"
-                onChange={handleFileChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-            </div>
-            {csvFile && (
-              <div className="text-sm text-green-600">
-                ✓ File selected: {csvFile.name}
-              </div>
-            )}
-            <div className="text-xs text-gray-500">
-              <p>Expected CSV format:</p>
-              <code className="bg-gray-100 px-2 py-1 rounded">
-                Email, Student Number, First Name, Last Name
-              </code>
-            </div>
-          </div>
-        </Card>
-
         {/* Verification Summary */}
         {selectedProgram && (
           <Card className="p-6 bg-blue-50">
@@ -260,9 +486,9 @@ export default function VerificationPage() {
               <p><span className="font-medium">Selected Program:</span> {selectedProgram}</p>
               <p><span className="font-medium">Students Found:</span> {students.length}</p>
               <p><span className="font-medium">Currently Viewing:</span> {statusFilter === 'all' ? 'All students' : `${statusFilter} students`} ({filteredStudents.length})</p>
-              <p><span className="font-medium">CSV File:</span> {csvFile ? csvFile.name : "Not selected"}</p>
+              <p><span className="font-medium">Verified Students in List:</span> {verifiedStudents.length}</p>
               <p className="text-gray-600 mt-3">
-                The system will match student email addresses from the CSV with existing accounts,
+                The system will match student email addresses from the verified list with existing accounts,
                 then verify student numbers for additional validation.
               </p>
             </div>
@@ -274,10 +500,8 @@ export default function VerificationPage() {
           <button
             onClick={() => {
               setSelectedProgram("");
-              setCsvFile(null);
               setStudents([]);
               setStatusFilter("all");
-              document.getElementById("csvFile").value = "";
             }}
             className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
@@ -285,10 +509,10 @@ export default function VerificationPage() {
           </button>
           <button
             onClick={handleVerification}
-            disabled={!selectedProgram || !csvFile || isLoading}
+            disabled={!selectedProgram}
             className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Processing..." : "Start Verification"}
+            Start Verification
           </button>
         </div>
       </div>

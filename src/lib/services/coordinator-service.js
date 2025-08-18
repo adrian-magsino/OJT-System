@@ -144,3 +144,122 @@ export async function generateDocument(submissionId, documentType) {
   }
 }
 
+//FOR STUDENT VERIFICATION
+export async function getVerifiedStudents() {
+  const supabase = await createClient()
+  
+  try {
+    const { data, error } = await supabase.rpc('get_verified_students')
+    
+    if (error) {
+      throw error
+    }
+    
+    return {
+      success: true,
+      data: data || [],
+      error: null
+    }
+  } catch (error) {
+    console.error('Error fetching verified students:', error)
+    return {
+      success: false,
+      data: [],
+      error: { message: error.message || 'Failed to fetch verified students' }
+    }
+  }
+}
+
+export async function addVerifiedStudent(email, studentNumber) {
+  const supabase = await createClient()
+  
+  try {
+    if (!email || !studentNumber) {
+      throw new Error('Email and student number are required')
+    }
+
+    const { data, error } = await supabase.rpc('add_verified_student', {
+      p_email: email.trim(),
+      p_student_number: studentNumber.trim()
+    })
+    
+    if (error) {
+      throw error
+    }
+    
+    return {
+      success: true,
+      data: data?.[0] || null,
+      error: null
+    }
+  } catch (error) {
+    console.error('Error adding verified student:', error)
+    return {
+      success: false,
+      data: null,
+      error: { message: error.message || 'Failed to add verified student' }
+    }
+  }
+}
+
+export async function addVerifiedStudentsBulk(studentsData) {
+  const supabase = await createClient()
+  
+  try {
+    if (!Array.isArray(studentsData) || studentsData.length === 0) {
+      throw new Error('Students data must be a non-empty array')
+    }
+
+    const { data, error } = await supabase.rpc('add_verified_students_bulk', {
+      students_data: JSON.stringify(studentsData)
+    })
+    
+    if (error) {
+      throw error
+    }
+    
+    return {
+      success: true,
+      data: data?.[0] || { success_count: 0, error_count: 0, errors: [] },
+      error: null
+    }
+  } catch (error) {
+    console.error('Error adding verified students in bulk:', error)
+    return {
+      success: false,
+      data: { success_count: 0, error_count: 0, errors: [] },
+      error: { message: error.message || 'Failed to add verified students' }
+    }
+  }
+}
+
+export async function removeVerifiedStudent(id) {
+  const supabase = await createClient()
+  
+  try {
+    if (!id) {
+      throw new Error('Student ID is required')
+    }
+
+    const { data, error } = await supabase.rpc('remove_verified_student', {
+      p_id: id
+    })
+    
+    if (error) {
+      throw error
+    }
+    
+    return {
+      success: true,
+      data: data,
+      error: null
+    }
+  } catch (error) {
+    console.error('Error removing verified student:', error)
+    return {
+      success: false,
+      data: false,
+      error: { message: error.message || 'Failed to remove verified student' }
+    }
+  }
+}
