@@ -170,17 +170,23 @@ export async function getVerifiedStudents() {
   }
 }
 
-export async function addVerifiedStudent(email, studentNumber) {
+export async function addVerifiedStudent(email, studentNumber, program) {
   const supabase = await createClient()
   
   try {
-    if (!email || !studentNumber) {
-      throw new Error('Email and student number are required')
+    if (!email || !studentNumber || !program) {
+      throw new Error('Email, student number, and program are required')
+    }
+
+    // Validate program
+    if (!['BSCS', 'BSIT'].includes(program)) {
+      throw new Error('Invalid program. Must be BSCS or BSIT')
     }
 
     const { data, error } = await supabase.rpc('add_verified_student', {
       p_email: email.trim(),
-      p_student_number: studentNumber.trim()
+      p_student_number: studentNumber.trim(),
+      p_program: program.trim()
     })
     
     if (error) {
@@ -208,6 +214,13 @@ export async function addVerifiedStudentsBulk(studentsData) {
   try {
     if (!Array.isArray(studentsData) || studentsData.length === 0) {
       throw new Error('Students data must be a non-empty array')
+    }
+
+    // Validate each student's program
+    for (const student of studentsData) {
+      if (!student.program || !['BSCS', 'BSIT'].includes(student.program)) {
+        throw new Error(`Invalid program "${student.program}". Must be BSCS or BSIT`)
+      }
     }
 
     const { data, error } = await supabase.rpc('add_verified_students_bulk', {

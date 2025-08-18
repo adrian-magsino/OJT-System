@@ -22,7 +22,7 @@ export default function VerificationPage() {
   
   // Manual add form state
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newStudent, setNewStudent] = useState({ email: "", studentNumber: "" });
+  const [newStudent, setNewStudent] = useState({ email: "", studentNumber: "" , program: "" });
   
   // CSV upload state
   const [csvFile, setCsvFile] = useState(null);
@@ -101,15 +101,15 @@ export default function VerificationPage() {
 
   const handleAddStudent = async (e) => {
     e.preventDefault();
-    if (!newStudent.email || !newStudent.studentNumber) {
+    if (!newStudent.email || !newStudent.studentNumber || !newStudent.program) {
       alert('Please fill in all fields');
       return;
     }
 
     try {
-      const result = await addVerifiedStudentAction(newStudent.email, newStudent.studentNumber);
+      const result = await addVerifiedStudentAction(newStudent.email, newStudent.studentNumber, newStudent.program);
       if (result.success) {
-        setNewStudent({ email: "", studentNumber: "" });
+        setNewStudent({ email: "", studentNumber: "", program: "" });
         setShowAddForm(false);
         fetchVerifiedStudents();
         alert('Student added successfully');
@@ -164,9 +164,9 @@ export default function VerificationPage() {
       const dataLines = lines.slice(1);
       
       const studentsData = dataLines.map(line => {
-        const [email, studentNumber] = line.split(',').map(item => item.trim());
-        return { email, student_number: studentNumber };
-      }).filter(student => student.email && student.student_number);
+        const [email, studentNumber, program] = line.split(',').map(item => item.trim());
+        return { email, student_number: studentNumber, program };
+      }).filter(student => student.email && student.student_number && student.program);
 
       if (studentsData.length === 0) {
         alert('No valid student data found in CSV');
@@ -248,8 +248,8 @@ export default function VerificationPage() {
           {showAddForm && (
             <div className="mb-4 p-4 bg-gray-50 rounded-lg">
               <h3 className="font-medium mb-3">Add New Student</h3>
-              <form onSubmit={handleAddStudent} className="flex gap-4 items-end">
-                <div className="flex-1">
+              <form onSubmit={handleAddStudent} className="flex gap-4 items-end flex-wrap">
+                <div className="flex-1 min-w-[200px]">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input
                     type="email"
@@ -259,7 +259,7 @@ export default function VerificationPage() {
                     required
                   />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-[150px]">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Student Number</label>
                   <input
                     type="text"
@@ -268,6 +268,22 @@ export default function VerificationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
+                </div>
+                <div className="flex-1 min-w-[120px]">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Program</label>
+                  <select
+                    value={newStudent.program}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, program: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Select Program</option>
+                    {programs.map((program) => (
+                      <option key={program.value} value={program.value}>
+                        {program.value}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <button
                   type="submit"
@@ -279,7 +295,7 @@ export default function VerificationPage() {
                   type="button"
                   onClick={() => {
                     setShowAddForm(false);
-                    setNewStudent({ email: "", studentNumber: "" });
+                    setNewStudent({ email: "", studentNumber: "", program: "" });
                   }}
                   className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
@@ -319,7 +335,7 @@ export default function VerificationPage() {
               <div className="text-xs text-gray-500">
                 <p>Expected CSV format (with header):</p>
                 <code className="bg-gray-100 px-2 py-1 rounded">
-                  Email, Student Number
+                  Email, Student Number, Program
                 </code>
               </div>
             </div>
@@ -335,6 +351,7 @@ export default function VerificationPage() {
                   <tr className="bg-gray-50">
                     <th className="border border-gray-300 px-4 py-2 text-left">Email</th>
                     <th className="border border-gray-300 px-4 py-2 text-left">Student Number</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">Program</th>
                     <th className="border border-gray-300 px-4 py-2 text-left">Added Date</th>
                     <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
                   </tr>
@@ -344,6 +361,13 @@ export default function VerificationPage() {
                     <tr key={student.id} className="hover:bg-gray-50">
                       <td className="border border-gray-300 px-4 py-2">{student.email}</td>
                       <td className="border border-gray-300 px-4 py-2">{student.student_number}</td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          student.program === 'BSCS' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                        }`}>
+                          {student.program}
+                        </span>
+                      </td>
                       <td className="border border-gray-300 px-4 py-2">
                         {new Date(student.created_at).toLocaleDateString()}
                       </td>

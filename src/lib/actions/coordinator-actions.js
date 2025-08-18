@@ -89,8 +89,8 @@ export async function getVerifiedStudentsAction() {
   return await getVerifiedStudents()
 }
 
-export async function addVerifiedStudentAction(email, studentNumber) {
-  const result = await addVerifiedStudent(email, studentNumber)
+export async function addVerifiedStudentAction(email, studentNumber, program) {
+  const result = await addVerifiedStudent(email, studentNumber, program)
   
   if (result.success) {
     revalidatePath('/coordinator/verification')
