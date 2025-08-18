@@ -4,15 +4,14 @@ import { redirect } from "next/navigation";
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/student";
+  const next = searchParams.get("next");
 
   const supabase = await createClient();
 
   // Check if user is already authenticated
   const { data: { user } } = await supabase.auth.getUser();
   
-  if (user) {
-    // User is already logged in, redirect to dashboard
+  if (user && next) {
     redirect(next);
   }
 
@@ -20,23 +19,65 @@ export async function GET(request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (!error) {
-      // Redirect to student dashboard after successful login
-      redirect(next);
+      const { data: { user: authenticatedUser } } = await supabase.auth.getUser();
+      
+      if (authenticatedUser) {
+        if (next) {
+          redirect(next);
+        }
+        
+        // Get user role and redirect accordingly
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('user_id', authenticatedUser.id)
+          .single();
+        
+        if (!userError && userData?.role) {
+          const userRole = userData.role;
+          
+          if (['admin', 'ojt_coordinator'].includes(userRole)) {
+            redirect('/coordinator');
+          } else if (userRole === 'student') {
+            redirect('/student');
+          }
+        }
+        
+        // Fallback
+        redirect('/student');
+      }
     } else {
-      // Check if error is due to code already being used
+      // Handle code already used/expired
       if (error.message.includes('code') || error.message.includes('expired') || error.message.includes('invalid')) {
-        // Code already used or expired, check if user is now authenticated
         const { data: { user: newUser } } = await supabase.auth.getUser();
         if (newUser) {
-          redirect(next);
+          if (next) {
+            redirect(next);
+          }
+          
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('user_id', newUser.id)
+            .single();
+          
+          if (!userError && userData?.role) {
+            const userRole = userData.role;
+            
+            if (['admin', 'ojt_coordinator'].includes(userRole)) {
+              redirect('/coordinator');
+            } else if (userRole === 'student') {
+              redirect('/student');
+            }
+          }
+          
+          redirect('/student');
         }
       }
       
-      // Redirect to error page with error message
       redirect(`/auth/error?error=${encodeURIComponent(error.message)}`);
     }
   }
 
-  // If no code, redirect to error page
   redirect(`/auth/error?error=${encodeURIComponent("No authorization code provided")}`);
 }
