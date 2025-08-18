@@ -1,6 +1,6 @@
 'use server'
 
-import { updateStudentProfile, getCurrentStudentProfile } from "@/lib/services/student-service";
+import { updateStudentProfile, updateStudentProfileWithVerification, getCurrentStudentProfile } from "@/lib/services/student-service";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/services/user-service";
@@ -50,7 +50,8 @@ export async function updateProgramAndStudentNumber(formData) {
     throw new Error('Verified students cannot edit program or student number');
   }
 
-  const { error: updateError } = await updateStudentProfile({
+  // Use the new service function that includes verification
+  const { error: updateError, verificationResult } = await updateStudentProfileWithVerification({
     program,
     student_number
   });
@@ -60,5 +61,13 @@ export async function updateProgramAndStudentNumber(formData) {
   }
 
   revalidatePath('/student/profile');
-  return { success: true };
+  
+  // Return success with verification status
+  return { 
+    success: true,
+    verificationResult: verificationResult || null,
+    message: verificationResult?.is_verified 
+      ? 'Profile updated and account verified successfully!'
+      : 'Profile updated. Your account will be verified once your details match our records.'
+  };
 }

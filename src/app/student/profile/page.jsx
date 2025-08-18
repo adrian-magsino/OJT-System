@@ -9,8 +9,6 @@ import { getCurrentStudentProfile } from "@/lib/services/student-service";
 import { errorFallback } from "@/lib/utils/error/error-handler";
 import Image from "next/image";
 
-
-
 export default async function StudentProfile() {
   const { student, error } = await getCurrentStudentProfile();
 
@@ -60,26 +58,51 @@ export default async function StudentProfile() {
                 </span>
               )}
             </div>
-              
-              
-
           </div>
 
           {/*Personal Info Container */}
           <div className="grow">
             <div className="mt-8 flex flex-row items-center gap-3 ">
               <div className="text-gray-800 font-medium text-3xl">{student.name}</div>
-              {student.verification_status.toLowerCase() === "verified" ? (
-                <div className="text-white rounded-full text-xs bg-green-500 px-2 py-1 inline-block">VERIFIED</div>
-              ):(
-                <div className="text-white rounded-full text-xs bg-red-500 px-2 py-1 inline-block">UNVERIFIED</div>
+              {student.verification_status?.toLowerCase() === "verified" ? (
+                <div className="text-white rounded-full text-xs bg-green-500 px-2 py-1 inline-block">
+                  VERIFIED
+                  {student.verified_at && (
+                    <span className="block text-xs mt-1 opacity-75">
+                      {new Date(student.verified_at).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+              ) : student.verification_status?.toLowerCase() === "unverified" ? (
+                <div className="text-white rounded-full text-xs bg-red-500 px-2 py-1 inline-block">
+                  UNVERIFIED
+                </div>
+              ) : (
+                <div className="text-white rounded-full text-xs bg-yellow-500 px-2 py-1 inline-block">
+                  PENDING
+                </div>
               )}
             </div>
             
-            <StudentDetailsSection student={student} onSave={updateProgramAndStudentNumber}/>
+            {/* Verification Info */}
+            {student.verification_status?.toLowerCase() === "unverified" && (
+              <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded">
+                <p>Your account details don't match our verified student records.</p>
+                <p>Please ensure your email, student number, and program are correct.</p>
+              </div>
+            )}
             
+            {student.verification_status?.toLowerCase() === "pending" && (
+              <div className="mt-2 text-sm text-yellow-600 bg-yellow-50 p-2 rounded">
+                <p>Your account verification is pending.</p>
+                <p>Complete your profile information to verify your account.</p>
+              </div>
+            )}
+            
+            <StudentDetailsSection student={student} onSave={updateProgramAndStudentNumber}/>
           </div>
         </div>
+
         {/*Skills and Specializations Section*/}
         <div className="w-full min-h-30 grow bg-white border-1 border-gray-200 mx-10 p-2">
           <h3 className="ml-2 mt-2 font-bold text-green-800">SKILLS AND SPECIALIZATIONS</h3>
@@ -88,7 +111,6 @@ export default async function StudentProfile() {
             initialSpecializations={student.specializations || []} 
             onSave={updateSpecializationsField}
           />
-
         </div>
 
         {/*Interests Section*/}
@@ -99,11 +121,8 @@ export default async function StudentProfile() {
             initialInterests={student.interests || []}
             onSave={updateInterestsField}
           />
-
         </div>
-        
       </div>
     </div>
-    
   );
 }
