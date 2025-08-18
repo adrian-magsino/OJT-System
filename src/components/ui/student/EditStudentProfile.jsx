@@ -6,10 +6,29 @@ import { Pencil } from "lucide-react";
 
 export default function StudentDetailsSection({student, onSave}) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const handleSubmit = async (formData) => {
+    setIsSubmitting(true);
+    try {
+      const result = await onSave(formData);
+      if (result?.success) {
+        setIsEditing(false);
+        // Show success message if needed
+        if (result.message) {
+          alert(result.message);
+        }
+      }
+    } catch (error) {
+      alert(error.message || 'Failed to update profile');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   return (
     <>
-      {student.verification_status.toLowerCase() === "verified" ? (
+      {student.verification_status?.toLowerCase() === "verified" ? (
         <div className="flex gap-15 px-8 py-8">
           <InfoField label="Email" value={student.email}/>
           <InfoField label="Program" value={student.program}/>
@@ -32,7 +51,7 @@ export default function StudentDetailsSection({student, onSave}) {
               </button>
             </div>
           ) : (
-            <form action={onSave} className="flex flex-col gap-6 max-w-xl">
+            <form action={handleSubmit} className="flex flex-col gap-6 max-w-xl">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col">
                   <label className="text-xs font-semibold text-gray-600 mb-1">Email</label>
@@ -44,14 +63,17 @@ export default function StudentDetailsSection({student, onSave}) {
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="program" className="text-xs font-semibold text-gray-600 mb-1">Program</label>
-                  <input
+                  <select
                     id="program"
                     name="program"
                     required
                     defaultValue={student.program || ""}
                     className="border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Enter Program"
-                  />
+                  >
+                    <option value="">Select Program</option>
+                    <option value="BSCS">BSCS</option>
+                    <option value="BSIT">BSIT</option>
+                  </select>
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="student_number" className="text-xs font-semibold text-gray-600 mb-1">Student Number</label>
@@ -68,15 +90,16 @@ export default function StudentDetailsSection({student, onSave}) {
               <div className="flex gap-3">
                 <button
                   type="submit"
-                  onClick={() => setIsEditing(false)}
+                  disabled={isSubmitting}
                   className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2 rounded disabled:opacity-50"
                 >
-                  Save Changes
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold px-5 py-2 rounded"
+                  disabled={isSubmitting}
+                  className="bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold px-5 py-2 rounded disabled:opacity-50"
                 >
                   Cancel
                 </button>
