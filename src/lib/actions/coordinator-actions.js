@@ -13,11 +13,19 @@ import {
 } from '@/lib/services/coordinator-service'
 import { revalidatePath } from 'next/cache'
 
-
-
-
 export async function getStudentsByProgramAction(program) {
-  return await getStudentsByProgram(program)
+  try {
+    const result = await getStudentsByProgram(program)
+    
+    if (!result.success) {
+      return { success: false, error: result.error?.message || 'Failed to fetch students' }
+    }
+    
+    return { success: true, data: result.data }
+  } catch (error) {
+    console.error('Error in getStudentsByProgramAction:', error)
+    return { success: false, error: error.message }
+  }
 }
 
 export async function checkCoordinatorStatusAction() {
@@ -66,21 +74,22 @@ export async function reviewSubmissionAction(submissionId, status) {
   }
 }
 
-export async function generateDocumentAction(submissionId, documentType) {
+export async function generateDocumentAction(submissionId, documentType = 'recommendation_letter') {
   try {
     const result = await generateDocument(submissionId, documentType)
     
-    if (result.success) {
-      revalidatePath('/coordinator/form2')
+    if (!result.success) {
+      return { success: false, error: result.error?.message || 'Failed to generate document' }
     }
     
-    return result
+    // Revalidate the correct paths
+    revalidatePath('/coordinator/generate-rl')
+    revalidatePath('/coordinator/form2')
+    
+    return { success: true, fileName: result.fileName, message: result.message }
   } catch (error) {
-    console.error('Server action error:', error)
-    return {
-      success: false,
-      error: { message: 'Failed to generate document' }
-    }
+    console.error('Error in generateDocumentAction:', error)
+    return { success: false, error: error.message }
   }
 }
 
