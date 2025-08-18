@@ -160,12 +160,36 @@ export default function VerificationPage() {
       const text = await csvFile.text();
       const lines = text.split('\n').filter(line => line.trim());
       
+      if (lines.length < 2) {
+        alert('CSV file must contain at least a header and one data row');
+        return;
+      }
+      
       // Skip header if it exists
       const dataLines = lines.slice(1);
       
-      const studentsData = dataLines.map(line => {
-        const [email, studentNumber, program] = line.split(',').map(item => item.trim());
-        return { email, student_number: studentNumber, program };
+      const studentsData = dataLines.map((line, index) => {
+        const columns = line.split(',').map(item => item.trim().replace(/"/g, ''));
+        
+        if (columns.length < 3) {
+          throw new Error(`Row ${index + 2}: Invalid number of columns. Expected 3 (email, student_number, program)`);
+        }
+        
+        const [email, student_number, program] = columns;
+        
+        if (!email || !student_number || !program) {
+          throw new Error(`Row ${index + 2}: Missing required fields`);
+        }
+        
+        if (!['BSCS', 'BSIT'].includes(program.toUpperCase())) {
+          throw new Error(`Row ${index + 2}: Invalid program "${program}". Must be BSCS or BSIT`);
+        }
+        
+        return { 
+          email: email.toLowerCase(), 
+          student_number: student_number, 
+          program: program.toUpperCase() 
+        };
       }).filter(student => student.email && student.student_number && student.program);
 
       if (studentsData.length === 0) {
@@ -173,24 +197,43 @@ export default function VerificationPage() {
         return;
       }
 
+      console.log('Parsed students data:', studentsData); // Debug log
+
       const result = await addVerifiedStudentsBulkAction(studentsData);
       if (result.success) {
-        const { success_count, error_count, errors } = result.data;
+        const { success_count, error_count, duplicate_count, errors } = result.data;
         fetchVerifiedStudents();
         setCsvFile(null);
         document.getElementById("csvFile").value = "";
         
-        let message = `Successfully added ${success_count} students.`;
-        if (error_count > 0) {
-          message += `\n${error_count} errors occurred:\n${errors.join('\n')}`;
+        // Create detailed message
+        let message = `Upload completed!\n\n`;
+        message += `✅ Successfully added: ${success_count} students\n`;
+        
+        if (duplicate_count > 0) {
+          message += `⚠️ Duplicates skipped: ${duplicate_count} students\n`;
         }
+        
+        if (error_count > 0) {
+          message += `❌ Errors occurred: ${error_count} students\n`;
+        }
+        
+        message += `\nTotal processed: ${success_count + duplicate_count + error_count} records`;
+        
+        if (errors && errors.length > 0) {
+          message += `\n\nDetails:\n${errors.slice(0, 5).join('\n')}`;
+          if (errors.length > 5) {
+            message += `\n... and ${errors.length - 5} more issues`;
+          }
+        }
+        
         alert(message);
       } else {
         alert(result.error?.message || 'Failed to upload students');
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to process CSV file');
+      console.error('Error processing CSV:', error);
+      alert(`Failed to process CSV file: ${error.message}`);
     } finally {
       setIsUploading(false);
     }
@@ -335,7 +378,7 @@ export default function VerificationPage() {
               <div className="text-xs text-gray-500">
                 <p>Expected CSV format (with header):</p>
                 <code className="bg-gray-100 px-2 py-1 rounded">
-                  Email, Student Number, Program
+                  email, student_number, program
                 </code>
               </div>
             </div>
