@@ -111,7 +111,7 @@ export async function updateSession(request) {
 
           const verificationStatus = profileData?.verification_status;
           
-          if (verificationStatus !== 'approved') {
+          if (verificationStatus !== 'verified') {
             const url = request.nextUrl.clone();
             url.pathname = "/student/verification-required";  // ← Changed this
             url.searchParams.set('status', verificationStatus);
