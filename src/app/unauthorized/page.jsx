@@ -12,6 +12,7 @@ export default function UnauthorizedPage() {
             You don't have permission to access this page.
           </p>
         </div>
+        {/*GO HOME */}
         <div className="space-y-4">
           <Link 
             href="/student"
