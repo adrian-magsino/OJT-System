@@ -22,8 +22,7 @@ export default function CoordinatorDashboard() {
       color: "bg-green-500 hover:bg-green-600",
       actions: [
         { label: "View Submissions", href: "/coordinator/form2" },
-        { label: "Generate MOA", href: "/coordinator/form2/generate-moa" },
-        { label: "Generate RL", href: "/coordinator/form2/generate-rl" }
+        { label: "Generate RL", href: "/coordinator/generate-rl" }
       ]
     }
   ];
@@ -104,16 +103,9 @@ export default function CoordinatorDashboard() {
             Review Submissions
           </Link>
           
-          <Link
-            href="/coordinator/form2/generate-moa"
-            className="inline-flex items-center px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors"
-          >
-            <FileText className="h-4 w-4 mr-2" />
-            Generate MOA
-          </Link>
           
           <Link
-            href="/coordinator/form2/generate-rl"
+            href="/coordinator/generate-rl"
             className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
           >
             <FileText className="h-4 w-4 mr-2" />

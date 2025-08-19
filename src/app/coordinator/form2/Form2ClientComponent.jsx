@@ -106,14 +106,9 @@ export default function Forms2ClientComponent({ initialSubmissions, user }) {
 
           {/* Generate Document Buttons */}
           <div className="flex gap-2">
+            
             <button
-              onClick={() => router.push('/coordinator/form2/generate-moa')}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
-            >
-              Generate MOA
-            </button>
-            <button
-              onClick={() => router.push('/coordinator/form2/generate-rl')}
+              onClick={() => router.push('/coordinator/generate-rl')}
               className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap"
             >
               Generate RL
