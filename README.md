@@ -172,10 +172,19 @@ For more information about CvSU:
 - Website: [cvsu.edu.ph](https://cvsu.edu.ph/)
 - Facebook: [CaviteStateU](https://www.facebook.com/CaviteStateU/)
 
+## 👥 Developers
+
+This project was developed by:
+
+- **Adrian A. Magsino**
+- **Jomel David P. Poquiz**
+
+*Computer Science Students, Cavite State University*
+
 ## 📝 License
 
-This project is developed for educational purposes as part of the Computer Science curriculum at Cavite State University.
+This project is developed for educational purposes as part of the Computer Science Practicum at Cavite State University.
 
 ---
 
-*Built with ❤️ for CvSU Computer Science students*
+*Built with ❤️ for CvSU Students*
