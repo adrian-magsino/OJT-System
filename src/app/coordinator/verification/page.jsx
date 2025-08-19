@@ -170,6 +170,7 @@ export default function VerificationPage() {
       
       const studentsData = dataLines.map((line, index) => {
         const columns = line.split(',').map(item => item.trim().replace(/"/g, ''));
+        console.log(columns);
         
         if (columns.length < 3) {
           throw new Error(`Row ${index + 2}: Invalid number of columns. Expected 3 (email, student_number, program)`);
@@ -200,6 +201,7 @@ export default function VerificationPage() {
       console.log('Parsed students data:', studentsData); // Debug log
 
       const result = await addVerifiedStudentsBulkAction(studentsData);
+      console.log(result);
       if (result.success) {
         const { success_count, error_count, duplicate_count, errors } = result.data;
         fetchVerifiedStudents();

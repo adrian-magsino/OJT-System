@@ -224,7 +224,7 @@ export async function addVerifiedStudentsBulk(studentsData) {
     }
 
     const { data, error } = await supabase.rpc('add_verified_students_bulk', {
-      students_data: JSON.stringify(studentsData)
+      students_data: studentsData 
     })
     
     if (error) {
