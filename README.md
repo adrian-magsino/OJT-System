@@ -125,13 +125,6 @@ npm run lint         # Run ESLint
 npm run lint:fix     # Fix ESLint errors
 ```
 
-## 🎨 Styling
-
-The project uses **Tailwind CSS** for styling with a green and yellow color scheme reflecting CvSU branding:
-- Primary: Green (`green-600`, `green-700`, `green-800`)
-- Accent: Yellow (`yellow-400`, `yellow-500`)
-- Background: White to green gradient
-
 ## 📄 Document Templates
 
 The system generates professional recommendation letters with:
@@ -146,21 +139,12 @@ The platform uses Supabase authentication with role-based access:
 - **Students**: Browse HTEs, view recommendations
 - **Coordinators**: Manage HTEs, generate documents, oversee applications
 
-## 🌐 Deployment
+## 👥 Developers
 
-The application is optimized for deployment on Vercel:
+This project was developed by:
 
-1. Connect your repository to Vercel
-2. Configure environment variables
-3. Deploy with automatic builds on push
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- **Adrian A. Magsino**
+- **Jomel David P. Poquiz**
 
 ## 📧 Contact
 
@@ -172,12 +156,11 @@ For more information about CvSU:
 - Website: [cvsu.edu.ph](https://cvsu.edu.ph/)
 - Facebook: [CaviteStateU](https://www.facebook.com/CaviteStateU/)
 
-## 👥 Developers
+**Developer's Contact Information**
+*Emails:*
+- Adrian A. Magsino: main.adrian.magsino@cvsu.edu.ph
+- Jomel David P. Poquiz: main.jomeldavid.poquiz@cvsu.edu.ph
 
-This project was developed by:
-
-- **Adrian A. Magsino**
-- **Jomel David P. Poquiz**
 
 *Computer Science Students, Cavite State University*
 
