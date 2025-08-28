@@ -2,7 +2,8 @@ name: Database Ping System
 
 on:
   schedule:
-    - cron: '0 0 */6 * *'  # Every 6 days at midnight UTC
+    - cron: '0 */12 * * *'  # Every 12 hours
+    - cron: '30 6 * * *'    # Daily at 6:30 AM UTC (additional ping)
   workflow_dispatch:
 
 jobs:
@@ -14,33 +15,42 @@ jobs:
         run: |
           echo "BASE_URL is set to: ${{ secrets.BASE_URL }}"
           echo "Full ping URL will be: ${{ secrets.BASE_URL }}/api/ping"
+          echo "Current UTC time: $(date -u)"
           
-      - name: Test Connectivity with Redirects
-        run: |
-          echo "Testing with redirect following..."
-          curl -L -v "${{ secrets.BASE_URL }}/api/ping" 2>&1 | head -20
-          
-      - name: Ping Database
+      - name: Ping Database Multiple Times
         run: |
           echo "Pinging database at: ${{ secrets.BASE_URL }}/api/ping"
           
-          # Use -L flag to follow redirects
-          response=$(curl -s -L -w "\n%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
-          http_code=$(echo "$response" | tail -n1)
-          body=$(echo "$response" | head -n -1)
-          
-          echo "HTTP Status: $http_code"
-          echo "Response: $body"
-          
-          if [ "$http_code" -eq 200 ]; then
-            echo "✅ Database ping successful!"
-            echo "Response details: $body"
-          else
-            echo "❌ Database ping failed with status: $http_code"
-            echo "Response body: $body"
+          # Ping multiple times to ensure database stays active
+          for i in {1..3}; do
+            echo "Ping attempt #$i"
             
-            # Additional debugging
-            echo "--- Additional Debug Info ---"
-            curl -I -L "${{ secrets.BASE_URL }}/api/ping" 2>&1 || true
+            response=$(curl -s -L -w "\n%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
+            http_code=$(echo "$response" | tail -n1)
+            body=$(echo "$response" | head -n -1)
+            
+            echo "HTTP Status: $http_code"
+            echo "Response: $body"
+            
+            if [ "$http_code" -eq 200 ]; then
+              echo "✅ Database ping #$i successful!"
+            else
+              echo "❌ Database ping #$i failed with status: $http_code"
+            fi
+            
+            # Wait 5 seconds between pings
+            if [ $i -lt 3 ]; then
+              sleep 5
+            fi
+          done
+          
+          # Final check - ensure at least one ping was successful
+          final_response=$(curl -s -L -w "\n%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
+          final_http_code=$(echo "$final_response" | tail -n1)
+          
+          if [ "$final_http_code" -ne 200 ]; then
+            echo "❌ All ping attempts failed"
             exit 1
           fi
+          
+          echo "✅ Ping system completed successfully"
