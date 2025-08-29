@@ -17,40 +17,79 @@ jobs:
           echo "Full ping URL will be: ${{ secrets.BASE_URL }}/api/ping"
           echo "Current UTC time: $(date -u)"
           
-      - name: Ping Database Multiple Times
+      - name: Ping Database Multiple Times with Response Logging
         run: |
           echo "Pinging database at: ${{ secrets.BASE_URL }}/api/ping"
           
           # Ping multiple times to ensure database stays active
           for i in {1..3}; do
-            echo "Ping attempt #$i"
+            echo "=================================="
+            echo "Ping attempt #$i at $(date -u)"
+            echo "=================================="
             
-            response=$(curl -s -L -w "\n%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
-            http_code=$(echo "$response" | tail -n1)
-            body=$(echo "$response" | head -n -1)
+            # Capture full response with proper parsing
+            full_response=$(curl -s -L -w "\nHTTP_STATUS:%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
+            
+            # Parse response body and status code
+            response_body=$(echo "$full_response" | sed '$d')
+            http_code=$(echo "$full_response" | tail -n1 | cut -d: -f2)
             
             echo "HTTP Status: $http_code"
-            echo "Response: $body"
+            echo "Response Body:"
+            echo "$response_body"
             
+            # Try to parse JSON response for better debugging
             if [ "$http_code" -eq 200 ]; then
               echo "✅ Database ping #$i successful!"
+              
+              # Extract key information from JSON response
+              success_status=$(echo "$response_body" | grep -o '"success":[^,]*' | cut -d: -f2)
+              operations_completed=$(echo "$response_body" | grep -o '"operationsCompleted":[^,]*' | cut -d: -f2)
+              total_operations=$(echo "$response_body" | grep -o '"totalOperations":[^,]*' | cut -d: -f2)
+              
+              echo "Success: $success_status"
+              echo "Operations Completed: $operations_completed"
+              echo "Total Operations: $total_operations"
+              
+              if [ "$operations_completed" = "0" ]; then
+                echo "⚠️  WARNING: No database operations were successful!"
+              fi
             else
               echo "❌ Database ping #$i failed with status: $http_code"
+              echo "Error response: $response_body"
             fi
             
-            # Wait 5 seconds between pings
+            # Wait 10 seconds between pings for better spacing
             if [ $i -lt 3 ]; then
-              sleep 5
+              echo "Waiting 10 seconds before next ping..."
+              sleep 10
             fi
           done
           
-          # Final check - ensure at least one ping was successful
-          final_response=$(curl -s -L -w "\n%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
-          final_http_code=$(echo "$final_response" | tail -n1)
+          echo "=================================="
+          echo "Final verification ping"
+          echo "=================================="
+          
+          # Final check with detailed output
+          final_full_response=$(curl -s -L -w "\nHTTP_STATUS:%{http_code}" "${{ secrets.BASE_URL }}/api/ping")
+          final_response_body=$(echo "$final_full_response" | sed '$d')
+          final_http_code=$(echo "$final_full_response" | tail -n1 | cut -d: -f2)
+          
+          echo "Final HTTP Status: $final_http_code"
+          echo "Final Response Body: $final_response_body"
           
           if [ "$final_http_code" -ne 200 ]; then
             echo "❌ All ping attempts failed"
             exit 1
           fi
           
-          echo "✅ Ping system completed successfully"
+          # Check if database operations were actually successful
+          final_operations_completed=$(echo "$final_response_body" | grep -o '"operationsCompleted":[^,]*' | cut -d: -f2)
+          
+          if [ "$final_operations_completed" = "0" ]; then
+            echo "❌ Ping endpoint responded but no database operations succeeded"
+            echo "This means the database is not being kept active"
+            exit 1
+          fi
+          
+          echo "✅ Ping system completed successfully with $final_operations_completed database operations"
